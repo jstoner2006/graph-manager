@@ -1,0 +1,97 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+  
+}
+
+datasource db {
+  provider = "postgresql"
+   
+}
+
+
+model Project {
+  projectId          String             @id @default(cuid())
+  projectName        String
+  projectDescription String?
+  
+  // 1-to-many relationships scoped by projectId
+  nodeTypes          ProjectNodeType[]
+  edgeTypes          ProjectEdgeType[]
+  nodes              Node[]
+  edges              Edge[]
+
+  @@map("projects")
+}
+
+model ProjectNodeType {
+  projectId String
+  nodeType  String
+
+  // Relations
+  project   Project @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
+  nodes     Node[]
+
+  // Necessary for Node to point to a valid combination of projectId + nodeType
+  @@id([projectId, nodeType])
+  @@map("project_node_types")
+}
+
+model ProjectEdgeType {
+  projectId String
+  edgeType  String
+
+  // Relations
+  project   Project @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
+  edges     Edge[]
+
+  // Necessary for Edge to point to a valid combination of projectId + edgeType
+  @@id([projectId, edgeType])
+  @@map("project_edge_types")
+}
+
+model Node {
+  nodeId    String @id @default(cuid())
+  nodeName  String
+  projectId String
+  nodeType  String
+
+  // Relations
+  project   Project         @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
+  
+  // Composite Foreign Key constraint: forces nodeType to belong to this exact projectId
+  type      ProjectNodeType @relation(fields: [projectId, nodeType], references: [projectId, nodeType])
+
+  // Self-referential graph relations for tracking connected Edges
+  outgoingEdges Edge[] @relation("FromNode")
+  incomingEdges Edge[] @relation("ToNode")
+
+  // Added a composite primary/unique fallback target for Edges to securely link against
+  @@unique([projectId, nodeId])
+  @@map("nodes")
+}
+
+model Edge {
+  edgeId     String @id @default(cuid())
+  edgeName   String
+  projectId  String
+  edgeType   String
+  fromNodeId String
+  toNodeId   String
+
+  // Relations
+  project    Project         @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
+  
+  // Composite Foreign Key constraint: forces edgeType to belong to this exact projectId
+  type       ProjectEdgeType @relation(fields: [projectId, edgeType], references: [projectId, edgeType])
+
+  // Constrains the source/target nodes to belong strictly to the SAME project as the edge
+  fromNode   Node            @relation("FromNode", fields: [projectId, fromNodeId], references: [projectId, nodeId])
+  toNode     Node            @relation("ToNode", fields: [projectId, toNodeId], references: [projectId, nodeId])
+
+  @@map("edges")
+}
