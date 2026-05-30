@@ -5,7 +5,7 @@ import { Node } from "@/types/node"; // ✅ Explicit Type reference
 
 export async function getNodesbyProjectID(
   projectId: string,
-): Promise<ProjectNode[]> {
+): Promise<Node[]> {
   if (!projectId) {
     throw new Error("getNodesbyProjectID requires a valid projectId string");
   }
