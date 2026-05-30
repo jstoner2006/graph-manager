@@ -1,18 +1,43 @@
-import Image from "next/image";
+// app/project/[id]/editNode/page.tsx
+"use client"; // We explicitly tell Next.js this is a browser page now
 
-export default function Home() {
+import React, { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import NodeTable, { Node } from "@/nodes/table";
+
+export default function ProjectNodesPage() {
+  const params = useParams();
+  const id = params?.id as string; // Grabs the [id] from your URL folder
+
+  const [nodes, setNodes] = useState<Node[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!id) return;
+
+    // Execute a standard HTTP GET request to the backend server
+    fetch(`/api/nodes?projectId=${id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setNodes(data);
+        }
+      })
+      .catch((err) => console.error("Fetch error:", err))
+      .finally(() => setLoading(false));
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="p-8 text-sm text-gray-500">
+        Loading nodes from server...
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            This will be the page where nodes are edited
-          </h1>
-          
-        </div>
-       
-      </main>
+    <div className="w-full">
+      <NodeTable nodes={nodes} />
     </div>
   );
 }
