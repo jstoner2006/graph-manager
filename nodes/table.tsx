@@ -1,15 +1,5 @@
 import React from "react";
-
-// 1. Define the TypeScript interface based on your Prisma Model
-export interface Node {
-  nodeId: string;
-  nodeName: string;
-  projectId: string;
-  nodeType: string;
-  // Relations are omitted here as they are typically fetched separately,
-  // but you can add them if your API returns them included.
-}
-
+import { Node } from "@/types/node";
 interface NodeTableProps {
   nodes?: Node[];
   onEdit?: (node: Node) => void;

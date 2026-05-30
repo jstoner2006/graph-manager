@@ -1,43 +1,28 @@
 // app/project/[id]/editNode/page.tsx
-"use client"; // We explicitly tell Next.js this is a browser page now
+import React from "react";
+import { getNodesbyProjectID } from "@/app/db/nodes/action"; // Import your new function
+import NodeTable from "@/nodes/table";
 
-import React, { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import NodeTable, { Node } from "@/nodes/table";
+interface PageProps {
+  params: Promise<{
+    id: string; // Must match your folder segment [id] exactly
+  }>;
+}
 
-export default function ProjectNodesPage() {
-  const params = useParams();
-  const id = params?.id as string; // Grabs the [id] from your URL folder
+export default async function EditNodePage({ params }: PageProps) {
+  // 1. Resolve the parameter from the dynamic URL route path
+  console.log("edit node page ran");
+  const { id } = await params;
 
-  const [nodes, setNodes] = useState<Node[]>([]);
-  const [loading, setLoading] = useState(true);
+  // 2. Safely fetch the array right on the server
+  const nodes = await getNodesbyProjectID(id);
 
-  useEffect(() => {
-    if (!id) return;
-
-    // Execute a standard HTTP GET request to the backend server
-    fetch(`/api/nodes?projectId=${id}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (Array.isArray(data)) {
-          setNodes(data);
-        }
-      })
-      .catch((err) => console.error("Fetch error:", err))
-      .finally(() => setLoading(false));
-  }, [id]);
-
-  if (loading) {
-    return (
-      <div className="p-8 text-sm text-gray-500">
-        Loading nodes from server...
-      </div>
-    );
-  }
-
+  // 3. Hand the raw array straight down to your presentation table
   return (
-    <div className="w-full">
-      <NodeTable nodes={nodes} />
+    <div className="py-6">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <NodeTable nodes={nodes} />
+      </div>
     </div>
   );
 }
