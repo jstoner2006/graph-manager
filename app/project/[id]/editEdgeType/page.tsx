@@ -1,7 +1,7 @@
 // app/project/[id]/editNode/page.tsx
 import React from "react";
-import { getNodesbyProjectID } from "@/app/db/nodes/action"; // Import your new function
-import NodeTable from "@/app/ui/nodes/table";
+import EdgeTypeTable from "@/app/ui/edgeTypes/table";
+import { getEdgeTypesByProjectID } from "@/app/db/edgetypes/actions";
 
 interface PageProps {
   params: Promise<{
@@ -9,19 +9,19 @@ interface PageProps {
   }>;
 }
 
-export default async function EditNodePage({ params }: PageProps) {
+export default async function EditEdgeTypePage({ params }: PageProps) {
   // 1. Resolve the parameter from the dynamic URL route path
-  console.log("edit node page ran");
+  console.log("edit edge type page ran");
   const { id } = await params;
 
   // 2. Safely fetch the array right on the server
-  const nodes = await getNodesbyProjectID(id);
+  const edgetypes = await getEdgeTypesByProjectID(id);
 
   // 3. Hand the raw array straight down to your presentation table
   return (
     <div className="py-6">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <NodeTable nodes={nodes} />
+        <EdgeTypeTable edgetype={edgetypes} />
       </div>
     </div>
   );

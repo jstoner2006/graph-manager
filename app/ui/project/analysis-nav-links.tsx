@@ -12,35 +12,20 @@ import Link from "next/link";
 import { usePathname, useParams } from "next/navigation";
 import clsx from "clsx";
 
-export default function NavLinks() {
+export default function AnalysisNavLinks() {
   const pathname = usePathname();
   const { id } = useParams<{ id: string }>();
 
   const links = [
     {
-      name: "Project Summary",
+      name: "Shortest Paths",
       href: `/project/${id}`,
       icon: DocumentTextIcon,
     },
     {
-      name: "Nodes",
+      name: "Dependency Analysis",
       href: `/project/${id}/editNode`,
       icon: Square2StackIcon,
-    },
-    {
-      name: "NodeTypes",
-      href: `/project/${id}/editNodeType`,
-      icon: UserGroupIcon,
-    },
-    {
-      name: "Edges",
-      href: `/project/${id}/editEdge`,
-      icon: ArrowPathRoundedSquareIcon,
-    },
-    {
-      name: "EdgeTypes",
-      href: `/project/${id}/editEdgeType`,
-      icon: DocumentDuplicateIcon,
     },
   ];
 

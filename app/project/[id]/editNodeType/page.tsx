@@ -1,7 +1,7 @@
 // app/project/[id]/editNode/page.tsx
 import React from "react";
-import { getNodesbyProjectID } from "@/app/db/nodes/action"; // Import your new function
-import NodeTable from "@/app/ui/nodes/table";
+import { getProjectNodeTypesbyProjectID } from "@/app/db/nodetypes/action";
+import NodeTypesTable from "@/app/ui/nodeTypes/table";
 
 interface PageProps {
   params: Promise<{
@@ -15,13 +15,13 @@ export default async function EditNodePage({ params }: PageProps) {
   const { id } = await params;
 
   // 2. Safely fetch the array right on the server
-  const nodes = await getNodesbyProjectID(id);
+  const nodeTypes = await getProjectNodeTypesbyProjectID(id);
 
   // 3. Hand the raw array straight down to your presentation table
   return (
     <div className="py-6">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <NodeTable nodes={nodes} />
+        <NodeTypesTable nodeTypes={nodeTypes} />
       </div>
     </div>
   );

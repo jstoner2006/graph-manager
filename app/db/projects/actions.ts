@@ -20,3 +20,19 @@ export async function getAllProjects(): Promise<ProjectData[]> {
     projectDescription: project.projectDescription,
   }));
 }
+
+export async function getProjectNameById(id: string) {
+  try {
+    const project = await prisma.project.findUnique({
+      where: { projectId: id },
+      select: {
+        projectName: true, // Only returns the name column from the database
+      },
+    });
+
+    return project ? project.projectName : null;
+  } catch (error) {
+    console.error(`Failed to fetch project name for ID ${id}:`, error);
+    throw new Error("Database query failed.");
+  }
+}
