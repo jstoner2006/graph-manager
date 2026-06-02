@@ -29,37 +29,27 @@ export default function NodeTable({
     <div className="px-4 sm:px-6 lg:px-8">
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
-          <h1 className="text-base font-semibold leading-6 text-gray-900">
-            Project Nodes
-          </h1>
-          <p className="mt-2 text-sm text-gray-700">
+          <h1>Project Nodes</h1>
+          <p>
             A list of all nodes within the network architecture including their
             names, associated projects, and types.
           </p>
         </div>
       </div>
 
-      <div className="mt-8 flow-root">
-        <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-          <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-            <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg bg-white">
-              <table className="min-w-full divide-y divide-gray-300">
+      <div>
+        <div>
+          <div>
+            <div>
+              <table>
                 {/* Header using your exact formatting layout */}
-                <thead className="bg-gray-50 text-left text-sm font-normal text-gray-900 rounded-lg">
+                <thead>
                   <tr>
-                    <th scope="col" className="px-4 py-5 font-medium sm:pl-6">
-                      Node ID
-                    </th>
-                    <th scope="col" className="px-3 py-5 font-medium">
-                      Node Name
-                    </th>
-                    <th scope="col" className="px-3 py-5 font-medium">
-                      Project ID
-                    </th>
-                    <th scope="col" className="px-3 py-5 font-medium">
-                      Type
-                    </th>
-                    <th scope="col" className="relative py-3 pl-6 pr-3">
+                    <th scope="col">Node ID</th>
+                    <th scope="col">Node Name</th>
+                    <th scope="col">Project ID</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">
                       <span className="sr-only">Edit</span>
                     </th>
                   </tr>
@@ -73,9 +63,7 @@ export default function NodeTable({
                       className="hover:bg-gray-50 transition-colors"
                     >
                       {/* Node ID */}
-                      <td className="whitespace-nowrap px-4 py-4 text-xs font-mono text-gray-500 sm:pl-6">
-                        {node.nodeId}
-                      </td>
+                      <td>{node.nodeId}</td>
                       {/* Node Name */}
                       <td className="whitespace-nowrap px-3 py-4 font-medium text-gray-900">
                         {node.nodeName}

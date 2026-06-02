@@ -1,5 +1,4 @@
 "use client";
-
 import {
   UserGroupIcon,
   HomeIcon,
@@ -17,16 +16,8 @@ export default function NavLinks() {
   const { id } = useParams<{ id: string }>();
 
   const links = [
-    {
-      name: "Project Summary",
-      href: `/project/${id}`,
-      icon: DocumentTextIcon,
-    },
-    {
-      name: "Nodes",
-      href: `/project/${id}/editNode`,
-      icon: Square2StackIcon,
-    },
+    { name: "Project Summary", href: `/project/${id}`, icon: DocumentTextIcon },
+    { name: "Nodes", href: `/project/${id}/editNode`, icon: Square2StackIcon },
     {
       name: "NodeTypes",
       href: `/project/${id}/editNodeType`,
@@ -49,18 +40,35 @@ export default function NavLinks() {
       {links.map((link) => {
         const LinkIcon = link.icon;
 
+        // Mechanical Check: Evaluates true if this link matches the current URL path
+        const isActive = pathname === link.href;
+
         return (
           <Link
             key={link.name}
             href={link.href}
             className={clsx(
-              "flex h-[48px] grow items-center justify-center gap-2 rounded-md bg-gray-50 p-3 text-sm font-medium hover:bg-sky-100 hover:text-blue-600 md:flex-none md:justify-start md:p-2 md:px-3",
+              // 1. BASE STYLES (Applies to all links in Dark Mode)
+              "flex h-[48px] grow items-center justify-center gap-2 rounded-md p-3 text-sm font-medium transition-all md:flex-none md:justify-start md:p-2 md:px-3 cursor-pointer",
+
+              // 2. CONDITIONALS (Swaps look depending on active route state)
               {
-                "bg-sky-100 text-blue-600": pathname === link.href,
+                // INACTIVE STATE: Muted slate colors that brighten on hover
+                "text-slate-400 hover:bg-slate-800/50 hover:text-slate-100":
+                  !isActive,
+
+                // ACTIVE STATE: Distinct blue indicator popping against the dark sidebar
+                "bg-blue-950/50 text-blue-400 border border-blue-900/50 shadow-sm shadow-blue-500/5":
+                  isActive,
               },
             )}
           >
-            <LinkIcon className="w-6" />
+            <LinkIcon
+              className={clsx("w-6 transition-colors", {
+                "text-blue-400": isActive,
+                "text-slate-500 group-hover:text-slate-300": !isActive,
+              })}
+            />
             <p className="hidden md:block">{link.name}</p>
           </Link>
         );

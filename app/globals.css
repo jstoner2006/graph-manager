@@ -1,10 +1,12 @@
 @import "tailwindcss";
 
+/* 1. Force the root variables to always use dark values */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0a0a0a; /* True deep dark background */
+  --foreground: #ededed; /* Off-white text for easy reading */
 }
 
+/* 2. Registers the CSS variables into Tailwind v4's engine */
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -12,15 +14,112 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* 3. Global body rules use the native engine variables */
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh; /* Ensures the dark background fills the whole screen */
+  margin: 0;
+  padding: 0;
+}
+
+/* 4. CENTRALIZED DATA LAYOUT & TYPOGRAPHY SYSTEM */
+@layer base {
+  /* ================= MASTER TYPOGRAPHY LOGIC ================= */
+
+  /* Main workspace titles */
+  h1 {
+    font-size: 1.875rem; /* 30px equivalent */
+    font-weight: 700; /* Solid bold heading profile */
+    letter-spacing: -0.025em; /* Sleek, compressed tracking */
+    color: #ffffff; /* High contrast bright white */
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Structural block headings (e.g., table title headers) */
+  h2 {
+    font-size: 1.25rem; /* 20px equivalent */
+    font-weight: 600; /* Clean semi-bold profile */
+    color: #f8fafc; /* Smooth off-white */
+    margin-top: 0;
+    margin-bottom: 0.25rem;
+  }
+
+  /* System body copy, info notes, and streaming text blocks */
+  p {
+    font-size: 0.875rem; /* 14px comfortable reading scale */
+    line-height: 1.6; /* Generous reading breathing space */
+    color: #94a3b8; /* Soft slate-400 tint to reduce eye fatigue */
+    max-width: 65ch; /* Wikipedia-style optimal width constraints */
+    margin-top: 0;
+    margin-bottom: 1rem;
+  }
+
+  /* Universal link formatting (e.g., "Open Workspace" action rows) */
+  a {
+    color: #3b82f6; /* Modern vibrant blue accent link */
+    font-weight: 500;
+    text-decoration: none;
+    transition: color 150ms ease;
+  }
+
+  a:hover {
+    color: #60a5fa; /* Illuminates link text on mouse-over pointer */
+    text-decoration: underline;
+  }
+
+  /* ================= MODERN DATA TABLE SYSTEM ================= */
+
+  /* The root data structure frame */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+    margin-top: 1rem;
+    background-color: #0f172a/20; /* Very faint translucent inner fill */
+    border: 1px solid #1e293b; /* Slate-800 shell wrapper seam */
+    border-radius: 0.5rem; /* Standard rounded block corners */
+    overflow: hidden; /* Clips row corners inside the border radius */
+  }
+
+  /* Universal header row shell configurations */
+  thead {
+    background-color: #0f172a/60; /* Noticeably darker block for header isolation */
+  }
+
+  /* Table column names formatting */
+  th {
+    padding: 1rem 1.25rem;
+    font-weight: 600;
+    color: #94a3b8; /* Clean slate-400 indicator headers */
+    text-align: left;
+    border-bottom: 1px solid #1e293b; /* Slate-800 line divider separating data */
+  }
+
+  /* Table item columns rows */
+  td {
+    padding: 1rem 1.25rem;
+    color: #cbd5e1; /* Highly legible data row text color */
+    border-bottom: 1px solid #0f172a; /* Thin grid divider seam line */
+  }
+
+  /* Global row movement highlighting layers */
+  tr {
+    transition: background-color 150ms ease;
+  }
+
+  /* Multi-tier target: sets row backdrop while preserving unique text properties */
+  tr:hover td {
+    background-color: #1e293b/40; /* Smooth, dark overlay highlighting selection */
+    color: #ffffff; /* Enhances text values under cursor hover */
+  }
+
+  /* Universal special behavior targeting project identification numbers */
+  td:first-child {
+    font-family: var(--font-mono), monospace; /* Code-styled typeface layout */
+    color: #60a5fa; /* Tech blue branding accent for structural links */
+    font-size: 0.75rem; /* Keeps dense primary keys compact */
+  }
 }

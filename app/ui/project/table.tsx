@@ -24,12 +24,10 @@ export default function ProjectTable({ projects }: ProjectTableProps) {
         <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
           <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
             <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg bg-white">
-              <table className="min-w-full divide-y divide-gray-300">
-                <thead className="bg-gray-50 text-left text-sm font-normal text-gray-900 rounded-lg">
+              <table>
+                <thead>
                   <tr>
-                    <th scope="col" className="px-4 py-5 font-medium sm:pl-6">
-                      Project ID
-                    </th>
+                    <th scope="col">Project ID</th>
                     <th scope="col" className="px-3 py-5 font-medium">
                       Project Name
                     </th>
