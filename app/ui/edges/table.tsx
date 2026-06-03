@@ -22,81 +22,46 @@ export default function EdgeTable({
   //onEdit,
 }: EdgeTableProps) {
   return (
-    <div className="px-4 sm:px-6 lg:px-8">
-      <div className="sm:flex sm:items-center">
-        <div className="sm:flex-auto">
-          <h1 className="text-base font-semibold leading-6 text-gray-900">
-            Project Edges
-          </h1>
-          <p className="mt-2 text-sm text-gray-700">
-            A list of all a projects edges.
-          </p>
+    <div>
+      <div>
+        <div>
+          <h1>Project Edges</h1>
+          <p>A list of all a projects edges.</p>
         </div>
       </div>
 
-      <div className="mt-8 flow-root">
-        <div className="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-          <div className="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-            <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg bg-white">
-              <table className="min-w-full divide-y divide-gray-300">
+      <div>
+        <div>
+          <div>
+            <div>
+              <table>
                 {/* Header using your exact formatting layout */}
-                <thead className="bg-gray-50 text-left text-sm font-normal text-gray-900 rounded-lg">
+                <thead>
                   <tr>
-                    <th scope="col" className="px-4 py-5 font-medium sm:pl-6">
-                      Edge ID
-                    </th>
-                    <th scope="col" className="px-3 py-5 font-medium">
-                      Edge Name
-                    </th>
-                    <th scope="col" className="px-3 py-5 font-medium">
-                      Project ID
-                    </th>
-                    <th scope="col" className="px-3 py-5 font-medium">
-                      Edge Type
-                    </th>
-                    <th scope="col" className="px-3 py-5 font-medium">
-                      From Node Id
-                    </th>
-                    <th scope="col" className="px-3 py-5 font-medium">
-                      to Node Id
-                    </th>
-                    <th scope="col" className="relative py-3 pl-6 pr-3">
+                    <th scope="col">Edge Name</th>
+
+                    <th scope="col">Edge Type</th>
+
+                    <th scope="col">
                       <span className="sr-only">Edit</span>
                     </th>
                   </tr>
                 </thead>
 
                 {/* Body mapped directly to the Prisma schema fields */}
-                <tbody className="divide-y divide-gray-200 bg-white text-sm text-gray-700">
+                <tbody>
                   {edges.map((edge) => (
-                    <tr
-                      key={edge.edgeId}
-                      className="hover:bg-gray-50 transition-colors"
-                    >
+                    <tr key={edge.edgeId}>
                       {/* edge ID */}
-                      <td className="whitespace-nowrap px-4 py-4 text-xs font-mono text-gray-500 sm:pl-6">
-                        {edge.edgeId}
-                      </td>
+
                       {/* Node Name */}
-                      <td className="whitespace-nowrap px-3 py-4 font-medium text-gray-900">
-                        {edge.edgeName}
-                      </td>
+                      <td>{edge.edgeName}</td>
                       {/* Project ID */}
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-600">
-                        {edge.projectId}
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-600">
-                        {edge.edgeType}
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-600">
-                        {edge.fromNodeId}
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-600">
-                        {edge.toNodeId}
-                      </td>
+
+                      <td>{edge.edgeType}</td>
 
                       {/* Actions */}
-                      <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                      <td>
                         <button
                           type="button"
                           // onClick={() => onEdit?.(node)}
