@@ -27,6 +27,14 @@ export default function Navbar() {
           </li>
           <li>
             <Link
+              href="/projects"
+              className="transition-colors hover:text-white"
+            >
+              Documentation
+            </Link>
+          </li>
+          <li>
+            <Link
               href="/contact"
               className="transition-colors hover:text-white"
             >

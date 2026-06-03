@@ -17,7 +17,12 @@ export default function AnalysisNavLinks() {
 
   const links = [
     {
-      name: "Shortest Paths",
+      name: "Shortest Path",
+      href: `/project/${id}/shortestPath`,
+      icon: DocumentTextIcon,
+    },
+    {
+      name: "Shortest Path(Weighted)",
       href: `/project/${id}`,
       icon: DocumentTextIcon,
     },
