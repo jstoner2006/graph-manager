@@ -1,26 +1,17 @@
-// app/projects/[id]/page.tsx
 import { getEdgesByProjectID } from "@/app/db/edges/actions";
-import ShortestPathDisplay from "@/app/ui/graphPath/ShortestPathDisplay";
-
-interface PageProps {
-  params: Promise<{
-    id: string;
-  }>;
-}
+import { getNodesbyProjectID } from "@/app/db/nodes/action";
+import RouteOptimizerSection from "@/app/ui/graphPath/RouteOptimizerSection";
 
 export default async function ProjectDashboardPage({ params }) {
   const { id } = await params;
   const edges = await getEdgesByProjectID(id);
+  const nodes = await getNodesbyProjectID(id);
 
   return (
     <main className="p-8">
       <h2>Route Optimizer</h2>
-      {/* Example passing IDs directly */}
-      <ShortestPathDisplay
-        edges={edges}
-        startNodeId="cmpy5mb63000f8kqnlvb1uf4b"
-        endNodeId="cmpy5mb63000k8kqnktcf5vqw"
-      />
+      {/* The client wrapper takes over the state interaction */}
+      <RouteOptimizerSection edges={edges} nodes={nodes} />
     </main>
   );
 }

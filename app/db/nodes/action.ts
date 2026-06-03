@@ -10,6 +10,7 @@ export async function getNodesbyProjectID(projectId: string): Promise<Node[]> {
 
   const rawNodes = await prisma.node.findMany({
     where: { projectId },
+    distinct: ["nodeName"],
     orderBy: { nodeName: "asc" },
   });
 

@@ -1,49 +1,80 @@
-// components/ShortestPathDisplay.tsx
-import React from "react";
+"use client";
+
+import { useMemo } from "react";
+// Import your pure BFS algorithm function and interface
 import { findShortestPath, PrismaEdge } from "@/lib/pathfinder";
 
-interface ShortestPathProps {
+// 1. Define the structure for the node items you are passing in
+interface NodeItem {
+  nodeId: string;
+  nodeName: string;
+  projectId: string;
+  nodeType: string;
+}
+
+interface ShortestPathDisplayProps {
   edges: PrismaEdge[];
+  nodes: NodeItem[];
   startNodeId: string;
   endNodeId: string;
 }
 
-export default async function ShortestPathDisplay({
+export default function ShortestPathDisplay({
   edges,
+  nodes,
   startNodeId,
   endNodeId,
-}: ShortestPathProps) {
-  // Execute the pathfinding algorithm on the server
-  const pathNodeIds = findShortestPath(edges, startNodeId, endNodeId);
+}: ShortestPathDisplayProps) {
+  // 1. Memoize the path calculation
+  const path = useMemo(() => {
+    // Only execute the BFS traversal if both endpoints have been chosen
+    if (!startNodeId || !endNodeId) return null;
+
+    console.log("Calculating shortest path via BFS..."); // Optional: left for debugging to watch the cache hit
+    return findShortestPath(edges, startNodeId, endNodeId);
+  }, [edges, startNodeId, endNodeId]); // Re-runs ONLY if one of these 3 properties changes
+
+  // 2. Clear handling of fallback UI states
+  if (!startNodeId || !endNodeId) {
+    return (
+      <p className="status-message">
+        Please select a start and end node above.
+      </p>
+    );
+  }
+
+  if (!path) {
+    return (
+      <p className="status-message error">
+        No valid route exists between these two nodes.
+      </p>
+    );
+  }
 
   return (
-    <div className="p-4 border rounded-xl bg-slate-50 dark:bg-slate-900">
-      <h3 className="text-lg font-bold mb-2">Calculated Route</h3>
+    <div className="shortest-path-results">
+      <h3>Optimal Route Found</h3>
 
-      {!pathNodeIds ? (
-        <p className="text-red-500">
-          No available route connects these cities.
-        </p>
-      ) : (
-        <div className="flex flex-col gap-2">
-          <p className="text-sm text-muted-foreground">
-            Shortest path found ({pathNodeIds.length - 1} connections):
-          </p>
-          <div className="flex flex-wrap items-center gap-2 font-medium">
-            {pathNodeIds.map((nodeId, index) => (
-              <React.Fragment key={nodeId}>
-                <span className="px-3 py-1 bg-white dark:bg-slate-800 rounded-md border shadow-sm">
-                  {nodeId}{" "}
-                  {/* If you have names mapped, you can resolve them here */}
-                </span>
-                {index < pathNodeIds.length - 1 && (
-                  <span className="text-slate-400">➔</span>
-                )}
-              </React.Fragment>
-            ))}
-          </div>
-        </div>
-      )}
+      <ol className="path-steps-list">
+        {path.map((nodeId, index) => {
+          // 2. Look up the actual name using the ID right before rendering
+          const matchingNode = nodes.find((n) => n.nodeId === nodeId);
+          console.log(matchingNode);
+          const displayName = matchingNode
+            ? matchingNode.nodeName
+            : `Unknown Node (${nodeId})`;
+
+          return (
+            <li key={`${nodeId}-${index}`}>
+              {/* 3. Render the name instead of the ID */}
+              {displayName}
+              {index < path.length - 1 && (
+                <span className="path-arrow"> → </span>
+              )}
+            </li>
+          );
+        })}
+      </ol>
     </div>
   );
 }
