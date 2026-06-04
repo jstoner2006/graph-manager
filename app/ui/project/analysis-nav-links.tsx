@@ -10,6 +10,7 @@ import {
 import Link from "next/link";
 import { usePathname, useParams } from "next/navigation";
 import clsx from "clsx";
+import { ImTree } from "react-icons/im";
 
 export default function AnalysisNavLinks() {
   const pathname = usePathname();
@@ -28,8 +29,13 @@ export default function AnalysisNavLinks() {
     },
     {
       name: "Dependency Analysis",
-      href: `/project/${id}/editNode`,
+      href: `/project/${id}/dependencies`,
       icon: Square2StackIcon,
+    },
+    {
+      name: "Object Hierarchy",
+      href: `/project/${id}/editNode`,
+      icon: ImTree,
     },
   ];
 
