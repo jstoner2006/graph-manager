@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import Link from "next/link";
 
 interface GraphData {
   nodes: { id: string; label: string; type: string }[];
@@ -119,6 +120,18 @@ export default function LineageTablePage() {
                   {metrics.totalEdges}
                 </div>
               </div>
+              <Link
+  //href={`/project/${id}/dependencies/${nodeId}/dep-viz`}
+  href={`/project/cmpzv3tad00368g22x63qv2ez/dependencies/cmpzv3tah00388g221lqx7qjp/dep-viz`}
+  
+  //href={`/test-pages/dep-viz`}
+  className="block"
+>
+  <div className="bg-slate-900 border border-slate-800 p-4 rounded-lg min-w-[120px] hover:bg-slate-800 transition-colors cursor-pointer">
+    <div className="text-xs text-slate-400">Go to Visual</div>
+    
+  </div>
+</Link>
             </div>
           )}
         </div>
