@@ -1,38 +1,44 @@
-// Add this interface definition at the top of your file:
+
 interface LineageElement {
   nodeId: string;
   nodeName: string;
   nodeType: string;
+
   edgeId: string | null;
   edgeName: string | null;
+
+  sourceNodeId: string | null;
+  targetNodeId: string | null;
+
   depth: number;
-}
 
-export function formatGraphData(lineageElements: LineageElement[]) {
-  const nodesMap = new Map();
-  const edgesMap = new Map();
+}export function formatGraphData(lineage: LineageElement[]) {
+  const nodes = new Map();
+  const edges = new Map();
 
-  lineageElements.forEach((item) => {
-    // Add Node if not already present
-    if (!nodesMap.has(item.nodeId)) {
-      nodesMap.set(item.nodeId, {
-        id: item.nodeId,
-        label: item.nodeName,
-        type: item.nodeType,
-      });
-    }
+  lineage.forEach((row) => {
+    nodes.set(row.nodeId, {
+      id: row.nodeId,
+      label: row.nodeName,
+      type: row.nodeType,
+    });
 
-    // Add Edge if it exists in this step of the path
-    if (item.edgeId) {
-      edgesMap.set(item.edgeId, {
-        id: item.edgeId,
-        label: item.edgeName,
+    if (
+      row.edgeId &&
+      row.sourceNodeId &&
+      row.targetNodeId
+    ) {
+      edges.set(row.edgeId, {
+        id: row.edgeId,
+        source: row.sourceNodeId,
+        target: row.targetNodeId,
+        label: row.edgeName,
       });
     }
   });
 
   return {
-    nodes: Array.from(nodesMap.values()),
-    edges: Array.from(edgesMap.values()),
+    nodes: [...nodes.values()],
+    edges: [...edges.values()],
   };
 }
