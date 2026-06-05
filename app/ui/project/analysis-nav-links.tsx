@@ -28,7 +28,7 @@ export default function AnalysisNavLinks() {
       icon: DocumentTextIcon,
     },
     {
-      name: "Dependency Analysis",
+      name: "Downstram Dependency Analysis",
       href: `/project/${id}/dependencies`,
       icon: Square2StackIcon,
     },
