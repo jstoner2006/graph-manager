@@ -1,79 +1,35 @@
-"use client";
-
-import React, { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+// app/project/[id]/dependencies/[nodeId]/page.tsx
+import React from "react";
 import Link from "next/link";
+import { getDependentsData } from "@/lib/getDependentsData";
 
-interface GraphData {
-  nodes: { id: string; label: string; type: string }[];
-  edges: { id: string; label: string }[];
+interface PageProps {
+  // Matches your folder tokens exactly, keeping 'id' unchanged
+  params: Promise<{ id: string; nodeId: string }>;
 }
 
-interface ApiResponse {
-  success: boolean;
-  context: { projectId: string; startNodeId: string };
-  metrics: { totalNodes: number; totalEdges: number };
-  data: GraphData;
-}
+// Notice the component is marked as standard async! No client hooks needed.
+export default async function LineageTablePage({ params }: PageProps) {
+  const { id, nodeId } = await params;
 
-export default function LineageTablePage() {
-  const params = useParams();
-  const id = params.id as string; // Matches your folder token [id]
-  const nodeId = params.nodeId as string;
+  let graph = null;
+  let metrics = null;
+  let error: string | null = null;
 
-  const [graph, setGraph] = useState<GraphData | null>(null);
-  const [metrics, setMetrics] = useState<{
-    totalNodes: number;
-    totalEdges: number;
-  } | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    async function fetchTableData() {
-      try {
-        setLoading(true);
-        // Hits your exact API path structure
-        const res = await fetch(`/api/project/${id}/dependencies/${nodeId}`);
-
-        if (!res.ok) {
-          throw new Error(
-            `Failed to fetch lineage data. Server returned status: ${res.status}`,
-          );
-        }
-
-        const json: ApiResponse = await res.json();
-        if (json.success) {
-          setGraph(json.data);
-          setMetrics(json.metrics);
-        } else {
-          throw new Error("API returned an unsuccessful status flag.");
-        }
-      } catch (err: any) {
-        setError(err.message || "An unexpected error occurred");
-      } finally {
-        setLoading(false);
-      }
+  try {
+    // Await the data directly in the cloud infrastructure
+    const json = await getDependentsData(id, nodeId);
+    if (json.success) {
+      graph = json.data;
+      metrics = json.metrics;
+    } else {
+      throw new Error("Data retrieval returned an unsuccessful state flag.");
     }
-
-    if (id && nodeId) {
-      fetchTableData();
-    }
-  }, [id, nodeId]);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-slate-900 text-slate-400">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-sm font-medium">
-            Executing Recursive Dependency Analysis CTE...
-          </p>
-        </div>
-      </div>
-    );
+  } catch (err: any) {
+    error = err.message || "An unexpected error occurred running analysis";
   }
 
+  // Error State Layout View
   if (error) {
     return (
       <div className="p-8 max-w-2xl mx-auto my-12 bg-red-950/40 border border-red-800 rounded-lg text-red-200">
@@ -85,6 +41,7 @@ export default function LineageTablePage() {
     );
   }
 
+  // Pure Server Render — Completely zero client loading states required here!
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 p-8">
       {/* Header Area */}
@@ -121,17 +78,13 @@ export default function LineageTablePage() {
                 </div>
               </div>
               <Link
-  //href={`/project/${id}/dependencies/${nodeId}/dep-viz`}
-  href={`/project/cmpzv3tad00368g22x63qv2ez/dependencies/cmpzv3tah00388g221lqx7qjp/dep-viz`}
-  
-  //href={`/test-pages/dep-viz`}
-  className="block"
->
-  <div className="bg-slate-900 border border-slate-800 p-4 rounded-lg min-w-[120px] hover:bg-slate-800 transition-colors cursor-pointer">
-    <div className="text-xs text-slate-400">Go to Visual</div>
-    
-  </div>
-</Link>
+                href={`/project/${id}/dependencies/${nodeId}/dep-viz`}
+                className="block"
+              >
+                <div className="bg-slate-900 border border-slate-800 p-4 rounded-lg min-w-[120px] hover:bg-slate-800 transition-colors cursor-pointer">
+                  <div className="text-xs text-slate-400">Go to Visual</div>
+                </div>
+              </Link>
             </div>
           )}
         </div>
@@ -181,7 +134,7 @@ export default function LineageTablePage() {
                 ))}
                 {graph?.nodes.length === 0 && (
                   <tr>
-                    <td colSpan={3} className="p-8 text-center text-slate-500">
+                    <td colSpan={2} className="p-8 text-center text-slate-500">
                       No downstream dependents found for this node.
                     </td>
                   </tr>
@@ -219,7 +172,7 @@ export default function LineageTablePage() {
                 ))}
                 {graph?.edges.length === 0 && (
                   <tr>
-                    <td colSpan={2} className="p-8 text-center text-slate-500">
+                    <td colSpan={1} className="p-8 text-center text-slate-500">
                       No intermediate relationship vectors map from this node.
                     </td>
                   </tr>
