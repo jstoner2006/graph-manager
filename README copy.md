@@ -11,7 +11,7 @@ my-nextjs-app/
 │ │ ├── layout.tsx
 │ │ └── page.tsx
 
-│ ├── components/ # GLOBAL shared UI components (shadcn, buttons, etc.)
+│ ├── components/ there maybe an issue with components/ui/table.tsx
 │ ├── features/ # THE CORE: Domain-driven modules (See breakdown below)
 │ ├── hooks/ # Global React hooks
 │ ├── lib/ # Core utilities & third-party initializations
