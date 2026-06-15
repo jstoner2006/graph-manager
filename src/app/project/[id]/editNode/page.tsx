@@ -11,7 +11,7 @@ interface PageProps {
 
 export default async function EditNodePage({ params }: PageProps) {
   // 1. Resolve the parameter from the dynamic URL route path
-  console.log("edit node page ran");
+
   const { id } = await params;
 
   // 2. Safely fetch the array right on the server

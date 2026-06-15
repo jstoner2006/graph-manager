@@ -30,10 +30,7 @@ export type GraphData = {
   adjacency: GraphAdjacency;
 };
 
-function buildAdjacency(
-  nodes: Node[],
-  edges: Edge[],
-): GraphAdjacency {
+function buildAdjacency(nodes: Node[], edges: Edge[]): GraphAdjacency {
   const outgoing: Record<string, string[]> = {};
   const incoming: Record<string, string[]> = {};
 
@@ -46,8 +43,8 @@ function buildAdjacency(
     outgoing[edge.fromNodeId] ??= [];
     incoming[edge.toNodeId] ??= [];
 
-    outgoing[edge.fromNodeId].push(edge.fromNodeId);
-    incoming[edge.toNodeId].push(edge.toNodeId);
+    outgoing[edge.fromNodeId].push(edge.toNodeId);
+    incoming[edge.toNodeId].push(edge.fromNodeId);
   }
 
   return {
@@ -56,19 +53,14 @@ function buildAdjacency(
   };
 }
 
-export async function getGraphData(
-  projectId: string,
-): Promise<GraphData> {
+export async function getGraphData(projectId: string): Promise<GraphData> {
   const [nodes, edges, nodeTypes] = await Promise.all([
     getNodesbyProjectID(projectId),
     getEdgesByProjectID(projectId),
     getProjectNodeTypesbyProjectID(projectId),
   ]);
 
-  const adjacency = buildAdjacency(
-    nodes,
-    edges,
-  );
+  const adjacency = buildAdjacency(nodes, edges);
 
   return {
     nodes,

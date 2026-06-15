@@ -39,9 +39,28 @@ export async function main() {
           // Source Tables
           { nodeName: "TBL_RAW_ORDERS", nodeType: "database object" },
           { nodeName: "TBL_RAW_INVENTORY", nodeType: "database object" },
+          { nodeName: "TBL_RAW_PRODUCT", nodeType: "database object" },
+          { nodeName: "TBL_RAW_LOCATION", nodeType: "database object" },
+          { nodeName: "TBL_RAW_JOURNAL", nodeType: "database object" },
           { nodeName: "TBL_RAW_SHIPMENTS", nodeType: "database object" },
           { nodeName: "TBL_DIM_CARRIERS", nodeType: "database object" },
           { nodeName: "TBL_DIM_CUSTOMERS", nodeType: "database object" },
+
+          { nodeName: "TBL_SUM_PRODUCT", nodeType: "database object" },
+          { nodeName: "TBL_SUM_LOCATION", nodeType: "database object" },
+          { nodeName: "TBL_SUM_JOURNAL", nodeType: "database object" },
+
+          { nodeName: "2-TBL_SUM_PRODUCT", nodeType: "database object" },
+          { nodeName: "2-TBL_SUM_LOCATION", nodeType: "database object" },
+          { nodeName: "2-TBL_SUM_JOURNAL", nodeType: "database object" },
+
+          { nodeName: "3-TBL_SUM_PRODUCT", nodeType: "database object" },
+          { nodeName: "3-TBL_SUM_LOCATION", nodeType: "database object" },
+          { nodeName: "3-TBL_SUM_JOURNAL", nodeType: "database object" },
+
+          { nodeName: "4-TBL_SUM_PRODUCT", nodeType: "database object" },
+          { nodeName: "4-TBL_SUM_LOCATION", nodeType: "database object" },
+          { nodeName: "4-TBL_SUM_JOURNAL", nodeType: "database object" },
 
           // Alternating Staging, Fact, Logs, and Procedures
           { nodeName: "SP_ETL_PROCESS_DISPATCH", nodeType: "database object" }, // Procedure 1
@@ -111,10 +130,30 @@ export async function main() {
     // --- Data Assets mapping back to Infrastructure Servers ---
     { from: "TBL_RAW_ORDERS", to: "SVR-PROD-ERP" },
     { from: "TBL_RAW_INVENTORY", to: "SVR-PROD-WMS" },
+    { from: "TBL_RAW_PRODUCT", to: "SVR-PROD-WMS" },
+    { from: "TBL_RAW_LOCATION", to: "SVR-PROD-WMS" },
+    { from: "TBL_RAW_JOURNAL", to: "SVR-PROD-WMS" },
+
+    { from: "TBL_SUM_PRODUCT", to: "TBL_RAW_PRODUCT" },
+    { from: "TBL_SUM_LOCATION", to: "TBL_RAW_LOCATION" },
+    { from: "TBL_SUM_JOURNAL", to: "TBL_RAW_JOURNAL" },
+
+    { from: "2-TBL_SUM_PRODUCT", to: "TBL_SUM_PRODUCT" },
+    { from: "2-TBL_SUM_LOCATION", to: "TBL_SUM_LOCATION" },
+    { from: "2-TBL_SUM_JOURNAL", to: "TBL_SUM_JOURNAL" },
+
+    { from: "3-TBL_SUM_PRODUCT", to: "2-TBL_SUM_PRODUCT" },
+    { from: "3-TBL_SUM_LOCATION", to: "2-TBL_SUM_LOCATION" },
+    { from: "3-TBL_SUM_JOURNAL", to: "2-TBL_SUM_JOURNAL" },
+
+    { from: "4-TBL_SUM_PRODUCT", to: "3-TBL_SUM_PRODUCT" },
+    { from: "4-TBL_SUM_LOCATION", to: "3-TBL_SUM_LOCATION" },
+    { from: "4-TBL_SUM_JOURNAL", to: "3-TBL_SUM_JOURNAL" },
 
     // --- Lineage Track 1: Orders & Dispatch Alternating Flow ---
     { from: "SP_ETL_PROCESS_DISPATCH", to: "TBL_RAW_ORDERS" },
     { from: "SP_ETL_PROCESS_DISPATCH", to: "TBL_RAW_SHIPMENTS" },
+
     { from: "TBL_STG_DISPATCH", to: "SP_ETL_PROCESS_DISPATCH" }, // Target table depends on procedure
 
     // --- Lineage Track 2: Fulfillment Metrics Chaining ---

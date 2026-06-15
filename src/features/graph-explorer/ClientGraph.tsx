@@ -4,24 +4,51 @@ import { useMemo, useState } from "react";
 import ClientGraphViz from "./ClientGraphViz";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import dagre from "dagre";
 
-type NodeType = { projectId: string; nodeType: string; };
-type GraphNode = { nodeId: string; nodeName: string; projectId: string; nodeType: string; };
-type GraphAdjacency = { outgoing: Record<string, string[]>; incoming: Record<string, string[]>; };
-type Props = { nodes: GraphNode[]; nodeTypes: NodeType[]; adjacency: GraphAdjacency; };
+type NodeType = { projectId: string; nodeType: string };
+type GraphNode = {
+  nodeId: string;
+  nodeName: string;
+  projectId: string;
+  nodeType: string;
+};
+type GraphAdjacency = {
+  outgoing: Record<string, string[]>;
+  incoming: Record<string, string[]>;
+};
+type Props = {
+  nodes: GraphNode[];
+  nodeTypes: NodeType[];
+  adjacency: GraphAdjacency;
+};
 
 // FIX 1: Corrected BFS tracking depth correctly and tracking queue visits safely
-function traverse(startNodeId: string, maxDepth: number, map: Record<string, string[]>) {
+function traverse(
+  startNodeId: string,
+  maxDepth: number,
+  map: Record<string, string[]>,
+) {
   const visited = new Set<string>();
   const queued = new Set<string>([startNodeId]); // Track what entered the queue to prevent cycles/duplicates
   const queue = [{ nodeId: startNodeId, depth: 0 }];
 
   while (queue.length > 0) {
     const current = queue.shift()!;
-    
+
     // Always add to visited when extracted
     visited.add(current.nodeId);
 
@@ -44,7 +71,7 @@ function traverse(startNodeId: string, maxDepth: number, map: Record<string, str
   return visited;
 }
 
-export default function ClientGraph({ nodes, nodeTypes, adjacency, }: Props) {
+export default function ClientGraph({ nodes, nodeTypes, adjacency }: Props) {
   const [selectedNodeType, setSelectedNodeType] = useState("");
   const [selectedNodeId, setSelectedNodeId] = useState("");
   const [hopsBefore, setHopsBefore] = useState(2);
@@ -67,7 +94,7 @@ export default function ClientGraph({ nodes, nodeTypes, adjacency, }: Props) {
   function layoutWithDagre(nodesBase: any[], edgesBase: any[]) {
     const g = new dagre.graphlib.Graph();
     g.setDefaultEdgeLabel(() => ({}));
-    g.setGraph({ rankdir: "LR", nodesep: 80, ranksep: 120 });
+    g.setGraph({ rankdir: "RL", nodesep: 80, ranksep: 120 });
 
     nodesBase.forEach((node) => {
       g.setNode(node.id, { width: 180, height: 40 });
@@ -112,8 +139,9 @@ export default function ClientGraph({ nodes, nodeTypes, adjacency, }: Props) {
     }
 
     const layoutedNodes = layoutWithDagre(rfNodesBase, rfEdges);
-    return { nodes: layoutedNodes, edges: rfEdges };
-  }, [nodes, adjacency, visibleNodeIds]);
+    const anchorNode = layoutedNodes.find((node) => node.id === selectedNodeId);
+    return { nodes: layoutedNodes, edges: rfEdges, anchorNode: anchorNode };
+  }, [nodes, adjacency, visibleNodeIds, selectedNodeId]);
 
   return (
     <>
@@ -121,8 +149,15 @@ export default function ClientGraph({ nodes, nodeTypes, adjacency, }: Props) {
         {/* Node Type Selector */}
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" role="combobox" className="w-[220px] justify-between">
-              {selectedNodeType ? nodeTypes.find((t) => t.nodeType === selectedNodeType)?.nodeType : "All Types"}
+            <Button
+              variant="outline"
+              role="combobox"
+              className="w-[220px] justify-between"
+            >
+              {selectedNodeType
+                ? nodeTypes.find((t) => t.nodeType === selectedNodeType)
+                    ?.nodeType
+                : "All Types"}
               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
           </PopoverTrigger>
@@ -132,17 +167,26 @@ export default function ClientGraph({ nodes, nodeTypes, adjacency, }: Props) {
               <CommandList>
                 <CommandEmpty>No node type found.</CommandEmpty>
                 <CommandGroup>
-                  <CommandItem value="all-types" onSelect={() => setSelectedNodeType("")}>
-                    <Check className={`mr-2 h-4 w-4 ${selectedNodeType === "" ? "opacity-100" : "opacity-0"}`} />
+                  <CommandItem
+                    value="all-types"
+                    onSelect={() => setSelectedNodeType("")}
+                  >
+                    <Check
+                      className={`mr-2 h-4 w-4 ${selectedNodeType === "" ? "opacity-100" : "opacity-0"}`}
+                    />
                     All Types
                   </CommandItem>
                   {nodeTypes.map((type) => (
-                    <CommandItem 
-                      key={type.nodeType} 
-                      value={type.nodeType} 
-                      onSelect={() => setSelectedNodeType(String(type.nodeType))}
+                    <CommandItem
+                      key={type.nodeType}
+                      value={type.nodeType}
+                      onSelect={() =>
+                        setSelectedNodeType(String(type.nodeType))
+                      }
                     >
-                      <Check className={`mr-2 h-4 w-4 ${selectedNodeType === type.nodeType ? "opacity-100" : "opacity-0"}`} />
+                      <Check
+                        className={`mr-2 h-4 w-4 ${selectedNodeType === type.nodeType ? "opacity-100" : "opacity-0"}`}
+                      />
                       {type.nodeType}
                     </CommandItem>
                   ))}
@@ -155,8 +199,14 @@ export default function ClientGraph({ nodes, nodeTypes, adjacency, }: Props) {
         {/* Node Selector */}
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" role="combobox" className="w-[300px] justify-between">
-              {selectedNodeId ? nodes.find((n) => n.nodeId === selectedNodeId)?.nodeName : "Select Node"}
+            <Button
+              variant="outline"
+              role="combobox"
+              className="w-[300px] justify-between"
+            >
+              {selectedNodeId
+                ? nodes.find((n) => n.nodeId === selectedNodeId)?.nodeName
+                : "Select Node"}
               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
           </PopoverTrigger>
@@ -173,7 +223,9 @@ export default function ClientGraph({ nodes, nodeTypes, adjacency, }: Props) {
                       value={`${node.nodeName.toLowerCase()}||${node.nodeId}`}
                       onSelect={() => setSelectedNodeId(node.nodeId)}
                     >
-                      <Check className={`mr-2 h-4 w-4 ${selectedNodeId === node.nodeId ? "opacity-100" : "opacity-0"}`} />
+                      <Check
+                        className={`mr-2 h-4 w-4 ${selectedNodeId === node.nodeId ? "opacity-100" : "opacity-0"}`}
+                      />
                       {node.nodeName}
                     </CommandItem>
                   ))}
@@ -186,15 +238,31 @@ export default function ClientGraph({ nodes, nodeTypes, adjacency, }: Props) {
         {/* Hops Inputs */}
         <div className="flex items-center gap-2">
           <label className="text-xs text-zinc-400">Hops Before:</label>
-          <input className="bg-zinc-900 text-white border border-zinc-700 px-2 py-1 rounded w-16" type="number" min={0} value={hopsBefore} onChange={(e) => setHopsBefore(Number(e.target.value))} />
+          <input
+            className="bg-zinc-900 text-white border border-zinc-700 px-2 py-1 rounded w-16"
+            type="number"
+            min={0}
+            value={hopsBefore}
+            onChange={(e) => setHopsBefore(Number(e.target.value))}
+          />
         </div>
         <div className="flex items-center gap-2">
           <label className="text-xs text-zinc-400">Hops After:</label>
-          <input className="bg-zinc-900 text-white border border-zinc-700 px-2 py-1 rounded w-16" type="number" min={0} value={hopsAfter} onChange={(e) => setHopsAfter(Number(e.target.value))} />
+          <input
+            className="bg-zinc-900 text-white border border-zinc-700 px-2 py-1 rounded w-16"
+            type="number"
+            min={0}
+            value={hopsAfter}
+            onChange={(e) => setHopsAfter(Number(e.target.value))}
+          />
         </div>
       </div>
 
-      <ClientGraphViz nodes={reactFlowData.nodes} edges={reactFlowData.edges} />
+      <ClientGraphViz
+        nodes={reactFlowData.nodes}
+        edges={reactFlowData.edges}
+        anchorNode={reactFlowData.anchorNode}
+      />
     </>
   );
 }

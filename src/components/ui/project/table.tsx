@@ -38,7 +38,7 @@ export default function ProjectTable({ projects }: ProjectTableProps) {
                   {projects.map((project) => (
                     <tr
                       key={project.projectId}
-                      className="hover:bg-gray-50 transition-colors"
+                      className="hover:bg-blue-500 dark:hover:bg-slate-800/60 transition-colors duration-150 ease-in-out"
                     >
                       {/* Project ID */}
                       <td>{project.projectId}</td>
