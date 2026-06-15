@@ -18,6 +18,11 @@ export default function AnalysisNavLinks() {
 
   const links = [
     {
+      name: "Graph Explorer",
+      href: `/project/${id}/graphExplorer`,
+      icon: DocumentTextIcon,
+    },
+    {
       name: "Shortest Path",
       href: `/project/${id}/shortestPath`,
       icon: DocumentTextIcon,

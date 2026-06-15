@@ -21,6 +21,7 @@ export default function DepSelectionFormClient({
 }: SelectionFormClientProps) {
   const router = useRouter();
   const [selectedNodeId, setSelectedNodeId] = useState<string>("");
+  const [traversalDirection, setTraversalDirection]=useState<string>("");
 
   const handleAnalyzeDependencies = (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,12 +43,7 @@ export default function DepSelectionFormClient({
             Select Root Lineage Node
           </h1>
           <p className="text-sm text-slate-400 mt-2">
-            Choose any asset inside Project{" "}
-            <span className="font-mono text-slate-300 bg-slate-950 px-1.5 py-0.5 rounded text-xs">
-              {id}
-            </span>{" "}
-            to construct its complete downstream forward reachability dependency
-            closure path.
+            Choose a node to see all of its ancestors, descendants, or both.
           </p>
         </div>
 
@@ -79,6 +75,24 @@ export default function DepSelectionFormClient({
                     {node.nodeName} ({node.nodeType.toUpperCase()})
                   </option>
                 ))}
+              </select>
+              <select
+              value={traversalDirection}
+              onChange={(e)=> setTraversalDirection(e.target.value)}
+              className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-slate-200 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all appearance-none cursor-pointer"
+              >
+                  <option value ="" disabled>
+                Select Direction
+                </option>
+                <option value ="descendants">
+                See Descendants
+                </option>
+                <option value="ancestors">
+                See Ancestors
+                </option>
+                <option value="both">
+                See Ancestors & Descendents
+                </option>
               </select>
               <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
                 <svg
