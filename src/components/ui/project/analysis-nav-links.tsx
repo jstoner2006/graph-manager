@@ -23,8 +23,8 @@ export default function AnalysisNavLinks() {
       icon: DocumentTextIcon,
     },
     {
-      name: "Similarity Visualizer",
-      href: `/project/${id}/graphExplorer`,
+      name: "affinity Network",
+      href: `/project/${id}/affinityNetwork`,
       icon: DocumentTextIcon,
     },
     {
