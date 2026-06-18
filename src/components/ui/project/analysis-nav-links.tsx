@@ -23,6 +23,11 @@ export default function AnalysisNavLinks() {
       icon: DocumentTextIcon,
     },
     {
+      name: "Similarity Visualizer",
+      href: `/project/${id}/graphExplorer`,
+      icon: DocumentTextIcon,
+    },
+    {
       name: "Shortest Path",
       href: `/project/${id}/shortestPath`,
       icon: DocumentTextIcon,

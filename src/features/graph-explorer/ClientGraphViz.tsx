@@ -8,6 +8,7 @@ import {
   useNodesState,
   useEdgesState,
   SelectionMode,
+  ReactFlowProvider,
 } from "@xyflow/react";
 
 import "@xyflow/react/dist/style.css";
@@ -15,26 +16,25 @@ import "@xyflow/react/dist/style.css";
 import { Node, Edge } from "@xyflow/react";
 import NodeToolTip from "./NodeToolTip";
 
-type Props = {
+type ClientGraphVizProps = {
   nodes: Node[];
   edges: Edge[];
   anchorNode: Node;
 };
 
-export default function ClientGraphViz({
+export function GraphVizCanvas({
   nodes: initialNodes,
   edges: initialEdges,
   anchorNode: initialAnchorNode,
-}: Props) {
-  // 1. React Flow's built-in state hooks handle the applyNodeChanges logic automatically
+}: ClientGraphVizProps) {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [hoveredNode, setHoveredNode] = useState<Node | null>(null);
+  //added to hold absolute position of node for tool tip
+  const [toolTipPos, setToolTipPos] = useState({ x: 0, y: 0 });
 
   const [dragMode, setDragMode] = useState<"pan" | "lasso">("pan");
 
-  // 2. Because useNodesState initializes instantly, we do a one-time sync
-  // to ensure the hook grabs the props if they arrive slightly delayed.
   useEffect(() => {
     setNodes(initialNodes);
   }, [initialNodes, setNodes]);
@@ -59,6 +59,16 @@ export default function ClientGraphViz({
     }
     return node;
   });
+
+  const handleOnNodeMouseEnter = (
+    { clientX, clientY }: React.MouseEvent,
+    hoveredNode: Node,
+  ) => {
+    const screenPos = { x: clientX, y: clientY };
+
+    setHoveredNode(hoveredNode);
+    setToolTipPos(screenPos);
+  };
 
   return (
     <div
@@ -137,10 +147,7 @@ export default function ClientGraphViz({
           //tool tip generation handling
           // onNodeMouseEnter={(_, clickedNode) => setHoveredNode}
 
-          onNodeMouseEnter={(_, clickedNode) => setHoveredNode(clickedNode)}
-          //onNodeMouseEnter={(node) =>
-          //  console.log("entered node", hoveredNode, node.target)
-          //}
+          onNodeMouseEnter={handleOnNodeMouseEnter}
           onNodeMouseLeave={() => console.log("leave fired")}
           //onNodeMouseLeave={() => setHoveredNode(null)}
           colorMode="dark"
@@ -157,9 +164,27 @@ export default function ClientGraphViz({
           <MiniMap />
           <Controls />
           <Background />
-          {hoveredNode && <NodeToolTip node={hoveredNode} />}
         </ReactFlow>
+        {hoveredNode && (
+          <NodeToolTip node={hoveredNode} x={toolTipPos.x} y={toolTipPos.y} />
+        )}
       </div>
     </div>
+  );
+}
+
+export function ClientGraphViz({
+  nodes: initialNodes,
+  edges: initialEdges,
+  anchorNode: initialAnchorNode,
+}: ClientGraphVizProps) {
+  return (
+    <ReactFlowProvider>
+      <GraphVizCanvas
+        nodes={initialNodes}
+        edges={initialEdges}
+        anchorNode={initialAnchorNode}
+      />
+    </ReactFlowProvider>
   );
 }

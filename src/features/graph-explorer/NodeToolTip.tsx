@@ -2,26 +2,30 @@
 
 import { Node } from "@xyflow/react";
 
-type NodeToolTipProps = {
-  node: Node;
-};
+interface NodeToolTipProps {
+  node: Node | null;
+  x: number;
+  y: number;
+}
 
-export default function NodeToolTip({ node }: NodeToolTipProps) {
+export default function NodeToolTip({ node, x, y }: NodeToolTipProps) {
   // 1. Extract the nodeName safely from the data key, matching your structure
-  const nodeName = node.data?.label || "Unnamed Node";
-  const nodeId = node.data.id;
+  const nodeName = node?.data?.label || "Unnamed Node";
+  const nodeId = node?.data.id;
 
   // 2. Extract the coordinates of the node so we can place the tooltip right over it
-  console.log(node.position);
-  const { x, y } = node.position;
+
+  //const { x, y } = node.position;
+  //const x = x;
+  //const y = y;
   //console.log("x pos is  ", x, "y pos is ", y);
   return (
     <div
       style={{
-        position: "absolute",
+        position: "fixed",
         // 3. Shift the tooltip horizontally to the center of the node,
         //    and vertically to sit roughly 45px above the node's top boundary
-        left: `${x + 75}px`,
+        left: `${x}px`,
         top: `${y}px`,
         transform: "translateX(-50%)", // Centers the tooltip perfectly over the node center
 

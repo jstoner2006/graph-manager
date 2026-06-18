@@ -26,6 +26,12 @@ async function main() {
   await seedDataLineage();
   console.log("✅ Data Lineage Seeding Complete.");
 
+  // 3. Execute social network seed
+  console.log("📊 Running: seed-social-network.ts...");
+  const { main: seedSocialNetwork } = require("./seed-social-network");
+  await seedSocialNetwork();
+  console.log("✅ Social networking Seeding Completed.");
+
   console.log("--------------------------------------------");
   console.log("🏁 Master Orchestration Finished Successfully!");
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import ClientGraphViz from "./ClientGraphViz";
+import { ClientGraphViz } from "./ClientGraphViz";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {

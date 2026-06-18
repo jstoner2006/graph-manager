@@ -5,24 +5,23 @@
 
 generator client {
   provider = "prisma-client-js"
-  
 }
 
 datasource db {
   provider = "postgresql"
-  }
 
+}
 
 model Project {
-  projectId          String             @id @default(cuid())
+  projectId          String            @id @default(cuid())
   projectName        String
   projectDescription String?
-  
+
   // 1-to-many relationships scoped by projectId
-  nodeTypes          ProjectNodeType[]
-  edgeTypes          ProjectEdgeType[]
-  nodes              Node[]
-  edges              Edge[]
+  nodeTypes ProjectNodeType[]
+  edgeTypes ProjectEdgeType[]
+  nodes     Node[]
+  edges     Edge[]
 
   @@map("projects")
 }
@@ -54,14 +53,15 @@ model ProjectEdgeType {
 }
 
 model Node {
-  nodeId    String @id @default(cuid())
+  nodeId    String  @id @default(cuid())
   nodeName  String
   projectId String
   nodeType  String
+  url       String? // Added: Optional URL field for the node
 
   // Relations
   project   Project         @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
-  
+
   // Composite Foreign Key constraint: forces nodeType to belong to this exact projectId
   type      ProjectNodeType @relation(fields: [projectId, nodeType], references: [projectId, nodeType])
 
@@ -75,16 +75,20 @@ model Node {
 }
 
 model Edge {
-  edgeId     String @id @default(cuid())
-  edgeName   String
-  projectId  String
-  edgeType   String
-  fromNodeId String
-  toNodeId   String
+  edgeId            String  @id @default(cuid())
+  edgeName          String
+  projectId         String
+  edgeType          String
+  fromNodeId        String
+  toNodeId          String
+  edgeWeight        Float? // Added: Optional numeric edge weight
+  edgeWeightMeasure String? // Added: Optional measurement category text
+  edgeWeightUnit    String? // Added: Optional unit text
+  url               String? // Added: Optional URL field for the edge
 
   // Relations
   project    Project         @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
-  
+
   // Composite Foreign Key constraint: forces edgeType to belong to this exact projectId
   type       ProjectEdgeType @relation(fields: [projectId, edgeType], references: [projectId, edgeType])
 
