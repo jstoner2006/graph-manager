@@ -42,6 +42,7 @@ export function NodeSelectionDropdowns({
           id="start-node-dropdown"
           value={startNodeId}
           onChange={handleStartChange}
+          className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-slate-200 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all appearance-none cursor-pointer"
         >
           <option value="">-- Select Start Node --</option>
           {nodeNames.map((node) => (
@@ -59,6 +60,7 @@ export function NodeSelectionDropdowns({
           id="end-node-dropdown"
           value={endNodeId}
           onChange={handleEndChange}
+          className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-3 text-slate-200 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 transition-all appearance-none cursor-pointer"
         >
           <option value="">-- Select End Node --</option>
           {nodeNames.map((node) => (

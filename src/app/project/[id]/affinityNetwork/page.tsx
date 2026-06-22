@@ -1,22 +1,14 @@
-"use client";
-
-import React, { useEffect, useRef } from "react";
-import {
-  ReactFlow,
-  useNodesState,
-  useEdgesState,
-  Background,
-  Controls,
-} from "@xyflow/react";
-import {
-  forceSimulation,
-  forceManyBody,
-  forceLink,
-  forceCenter,
-} from "d3-force";
+import { getEdgesByProjectID } from "@/queries/edges/actions";
+import { getNodesbyProjectID } from "@/queries/nodes/action";
 
 import "@xyflow/react/dist/style.css";
 import ClientWeightedFlowPage from "@/features/affinity-network/clientD3-force";
+
+interface PageProps {
+  params: Promise<{
+    id: string; // Must match your folder segment [id] exactly
+  }>;
+}
 
 const initialNodes = [
   { id: "1", data: { label: "Core Hub" }, position: { x: 0, y: 0 } },
@@ -53,11 +45,18 @@ const initialEdges = [
     data: { weight: 0.05 },
   },
 ];
-export function Page() {
+export default async function Page({ params }: PageProps) {
+  const { id } = await params;
+
+  const [nodes, edges] = await Promise.all([
+    getNodesbyProjectID(id),
+    getEdgesByProjectID(id),
+  ]);
+
   return (
     <ClientWeightedFlowPage
-      initialEdges={initialEdges}
-      initialNodes={initialNodes}
+      initialEdges={edges}
+      initialNodes={nodes}
     ></ClientWeightedFlowPage>
   );
 }

@@ -2,7 +2,7 @@ import { getEdgesByProjectID } from "@/queries/edges/actions";
 
 import { getNodesbyProjectID } from "@/queries/nodes/action";
 
-import RouteOptimizerSection from "@/components/ui/graphPath/RouteOptimizerSection";
+import RouteOptimizerSection from "@/features/shortest-path/RouteOptimizerSection";
 
 export default async function ProjectDashboardPage({ params }) {
   const { id } = await params;

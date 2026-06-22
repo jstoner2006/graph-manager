@@ -37,6 +37,10 @@ export async function main() {
           { nodeName: "Fiona Gallagher", nodeType: "Person" },
           { nodeName: "George Costanza", nodeType: "Person" },
           { nodeName: "Hannah Baker", nodeType: "Person" },
+          { nodeName: "Dirk Mcgurk", nodeType: "Person" },
+          { nodeName: "John Smith", nodeType: "Person" },
+          { nodeName: "Tina Fey", nodeType: "Person" },
+          { nodeName: "Will Ferrel", nodeType: "Person" },
         ],
       },
     },
@@ -62,6 +66,9 @@ export async function main() {
     { from: "Hannah Baker", to: "Alice Smith", weight: 0.6 },
     { from: "Diana Prince", to: "Alice Smith", weight: 0.75 },
     { from: "Evan Wright", to: "Bob Jones", weight: 0.3 },
+    { from: "Evan Wright", to: "John Smith", weight: 0.5 },
+    { from: "Evan Wright", to: "Tina Fey", weight: 0.5 },
+    { from: "Evan Wright", to: "Will Ferrel", weight: 0.5 },
   ];
 
   // 3. Map existing project node IDs into memory

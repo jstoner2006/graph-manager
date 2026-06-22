@@ -8,19 +8,14 @@ export async function getNodesbyProjectID(projectId: string): Promise<Node[]> {
     throw new Error("getNodesbyProjectID requires a valid projectId string");
   }
 
-  const rawNodes = await prisma.node.findMany({
+  const nodes = await prisma.node.findMany({
     where: { projectId },
     distinct: ["nodeName"],
     orderBy: { nodeName: "asc" },
   });
 
   // Map database schema fields to match the interface definition
-  return rawNodes.map((node) => ({
-    nodeId: node.nodeId,
-    nodeName: node.nodeName,
-    projectId: node.projectId,
-    nodeType: node.nodeType,
-  }));
+  return nodes;
 }
 
 export async function getNodeIdbyNodeNameProject(

@@ -1,4 +1,4 @@
-import LineageGraph from "@/components/ui/graphPath/lineageGraph";
+import LineageGraph from "@/features/dependencies-downstream/lineageGraph";
 import { getDependentsVizData } from "@/features/dependencies-downstream/getDependentsVizData";
 
 interface PageProps {
