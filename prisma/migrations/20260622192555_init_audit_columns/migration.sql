@@ -1,0 +1,24 @@
+-- AlterTable
+ALTER TABLE "edges" ADD COLUMN     "insert_dts" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN     "insert_user_name" TEXT NOT NULL DEFAULT current_user,
+ADD COLUMN     "last_update_dts" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+-- AlterTable
+ALTER TABLE "nodes" ADD COLUMN     "insert_dts" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN     "insert_user_name" TEXT NOT NULL DEFAULT current_user,
+ADD COLUMN     "last_update_dts" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+-- AlterTable
+ALTER TABLE "project_edge_types" ADD COLUMN     "insert_dts" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN     "insert_user_name" TEXT NOT NULL DEFAULT current_user,
+ADD COLUMN     "last_update_dts" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+-- AlterTable
+ALTER TABLE "project_node_types" ADD COLUMN     "insert_dts" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN     "insert_user_name" TEXT NOT NULL DEFAULT current_user,
+ADD COLUMN     "last_update_dts" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+-- AlterTable
+ALTER TABLE "projects" ADD COLUMN     "insert_dts" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ADD COLUMN     "insert_user_name" TEXT NOT NULL DEFAULT current_user,
+ADD COLUMN     "last_update_dts" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;

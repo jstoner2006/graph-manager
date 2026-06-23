@@ -9,6 +9,7 @@ import {
   useEdgesState,
   SelectionMode,
   ReactFlowProvider,
+  useReactFlow,
 } from "@xyflow/react";
 
 import "@xyflow/react/dist/style.css";
@@ -43,17 +44,56 @@ export function GraphVizCanvas({
     setEdges(initialEdges);
   }, [initialEdges, setEdges]);
 
+  // 2. 🚀 Camera Recentering Hook (Fires ONLY on fresh node activation/regeneration)
+
+  const { setCenter, getNode } = useReactFlow(); // Added getNode
+  // Extract the raw measured status of our anchor node to use as a pinpoint dependency
+  const anchorNodeId = initialAnchorNode?.id;
+  const liveAnchorNode = nodes.find((n) => n.id === anchorNodeId);
+  const isMeasured = liveAnchorNode?.measured?.width !== undefined;
+
+  useEffect(() => {
+    if (!anchorNodeId) return;
+
+    // Pull the fresh object out of the core React Flow layout cache
+    const activeNode = getNode(anchorNodeId);
+
+    if (activeNode && activeNode.measured?.width !== undefined) {
+      const nodeWidth = activeNode.measured.width;
+      const nodeHeight = activeNode.measured.height ?? 40;
+
+      const targetX = activeNode.position.x + nodeWidth / 2;
+      const targetY = activeNode.position.y + nodeHeight / 2;
+
+      setCenter(targetX, targetY, {
+        zoom: 1.1,
+        duration: 700,
+      });
+    }
+  }, [anchorNodeId, isMeasured, setCenter, getNode]); // 🚀 Tracks the exact moment measurements lock in
+
   const styledNodes = nodes.map((node) => {
     if (initialAnchorNode && node.id === initialAnchorNode.id) {
       return {
         ...node,
         style: {
           ...node.style,
+          width: "max-content",
+          whiteSpace: "nowrap",
           fontWeight: "bold",
           border: "3px solid #3b82f6", // Neon Blue border
           boxShadow: "0 0 15px rgba(59, 130, 246, 0.6)", // Highlighting Glow
           backgroundColor: "#1e293b", // Contrasting dark tile
           color: "#ffffff",
+        },
+      };
+    } else {
+      return {
+        ...node,
+        style: {
+          ...node.style,
+          width: "max-content",
+          whiteSpace: "nowrap",
         },
       };
     }
@@ -148,8 +188,7 @@ export function GraphVizCanvas({
           // onNodeMouseEnter={(_, clickedNode) => setHoveredNode}
 
           onNodeMouseEnter={handleOnNodeMouseEnter}
-          onNodeMouseLeave={() => console.log("leave fired")}
-          //onNodeMouseLeave={() => setHoveredNode(null)}
+          onNodeMouseLeave={() => setHoveredNode(null)}
           colorMode="dark"
           fitView
           // providing the toggle between lasso and pan
@@ -165,9 +204,11 @@ export function GraphVizCanvas({
           <Controls />
           <Background />
         </ReactFlow>
+        {/* this code is technically working but right now not useful the ui needs cleaned up
         {hoveredNode && (
           <NodeToolTip node={hoveredNode} x={toolTipPos.x} y={toolTipPos.y} />
         )}
+        */}
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef } from "react";
 import { ClientGraphViz } from "./ClientGraphViz";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,12 +17,14 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { ProjectEdgeLevel } from "@prisma/client";
 import dagre from "dagre";
 
 type NodeType = { projectId: string; nodeType: string };
 type GraphNode = {
   nodeId: string;
   nodeName: string;
+  nodeDisplayName: string;
   projectId: string;
   nodeType: string;
 };
@@ -34,6 +36,7 @@ type Props = {
   nodes: GraphNode[];
   nodeTypes: NodeType[];
   adjacency: GraphAdjacency;
+  ProjectEdgeLevels: ProjectEdgeLevel[];
 };
 
 // FIX 1: Corrected BFS tracking depth correctly and tracking queue visits safely
@@ -71,11 +74,23 @@ function traverse(
   return visited;
 }
 
-export default function ClientGraph({ nodes, nodeTypes, adjacency }: Props) {
+export default function ClientGraph({
+  nodes,
+  nodeTypes,
+  adjacency,
+  ProjectEdgeLevels,
+}: Props) {
+  {
+    /**used to reset the scroll bar when changing searches */
+  }
+
+  const commandListRef = useRef<HTMLDivElement>(null);
+
   const [selectedNodeType, setSelectedNodeType] = useState("");
   const [selectedNodeId, setSelectedNodeId] = useState("");
   const [hopsBefore, setHopsBefore] = useState(2);
   const [hopsAfter, setHopsAfter] = useState(2);
+  const [selectedEdgeLevel, setSelectedEdgeLevel] = useState("");
 
   const availableNodes = useMemo(() => {
     if (!selectedNodeType) return nodes;
@@ -91,13 +106,15 @@ export default function ClientGraph({ nodes, nodeTypes, adjacency }: Props) {
     return new Set([...upstream, ...downstream]);
   }, [selectedNodeId, hopsBefore, hopsAfter, adjacency]);
 
+  console.log(ProjectEdgeLevels);
+
   function layoutWithDagre(nodesBase: any[], edgesBase: any[]) {
     const g = new dagre.graphlib.Graph();
     g.setDefaultEdgeLabel(() => ({}));
-    g.setGraph({ rankdir: "RL", nodesep: 80, ranksep: 120 });
+    g.setGraph({ rankdir: "LR", nodesep: 80, ranksep: 320 });
 
     nodesBase.forEach((node) => {
-      g.setNode(node.id, { width: 180, height: 40 });
+      g.setNode(node.id, { width: node.measured?.width ?? 180, height: 40 });
     });
 
     edgesBase.forEach((edge) => {
@@ -120,7 +137,7 @@ export default function ClientGraph({ nodes, nodeTypes, adjacency }: Props) {
       .filter((n) => visibleNodeIds.has(n.nodeId))
       .map((node) => ({
         id: node.nodeId,
-        data: { label: node.nodeName },
+        data: { label: node.nodeDisplayName },
         position: { x: 0, y: 0 },
       }));
 
@@ -146,6 +163,57 @@ export default function ClientGraph({ nodes, nodeTypes, adjacency }: Props) {
   return (
     <>
       <div className="flex gap-4 mb-4 text-white">
+        {/* Edge Level Selector */}
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              role="combobox"
+              className="w-[200px] justify-between"
+            >
+              {selectedEdgeLevel
+                ? ProjectEdgeLevels.find(
+                    (el) => el.edgeLevel === selectedEdgeLevel,
+                  )?.edgeLevel
+                : "All Edge Levels"}
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[200px] p-0 bg-zinc-900 border border-zinc-700 text-white">
+            <Command className="bg-zinc-900 text-white">
+              <CommandInput placeholder="Search levels..." />
+              <CommandList>
+                <CommandEmpty>No level found.</CommandEmpty>
+                <CommandGroup>
+                  {/* Default Option to clear filter */}
+                  <CommandItem
+                    value="all-levels"
+                    onSelect={() => setSelectedEdgeLevel("")}
+                  >
+                    <Check
+                      className={`mr-2 h-4 w-4 ${selectedEdgeLevel === "" ? "opacity-100" : "opacity-0"}`}
+                    />
+                    All Edge Levels
+                  </CommandItem>
+
+                  {/* Dynamic levels map */}
+                  {ProjectEdgeLevels.map((level) => (
+                    <CommandItem
+                      key={level.edgeLevel}
+                      value={level.edgeLevel.toLowerCase()}
+                      onSelect={() => setSelectedEdgeLevel(level.edgeLevel)}
+                    >
+                      <Check
+                        className={`mr-2 h-4 w-4 ${selectedEdgeLevel === level.edgeLevel ? "opacity-100" : "opacity-0"}`}
+                      />
+                      {level.edgeLevel}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
         {/* Node Type Selector */}
         <Popover>
           <PopoverTrigger asChild>
@@ -205,28 +273,37 @@ export default function ClientGraph({ nodes, nodeTypes, adjacency }: Props) {
               className="w-[300px] justify-between"
             >
               {selectedNodeId
-                ? nodes.find((n) => n.nodeId === selectedNodeId)?.nodeName
+                ? nodes.find((n) => n.nodeId === selectedNodeId)
+                    ?.nodeDisplayName
                 : "Select Node"}
               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-[300px] p-0">
             <Command>
-              <CommandInput placeholder="Search nodes..." />
-              <CommandList>
+              <CommandInput
+                placeholder="Search nodes..."
+                onValueChange={() => {
+                  if (commandListRef.current) {
+                    commandListRef.current.scrollTop = 0;
+                  }
+                }}
+              />
+              {/** update here add  ref={commandListRef} */}
+              <CommandList ref={commandListRef}>
                 <CommandEmpty>No node found.</CommandEmpty>
                 <CommandGroup>
                   {availableNodes.map((node) => (
                     <CommandItem
                       key={node.nodeId}
                       // FIX 2: Value lowered and unique to ensure Shadcn searches node names perfectly
-                      value={`${node.nodeName.toLowerCase()}||${node.nodeId}`}
+                      value={`${node.nodeDisplayName.toLowerCase()}||${node.nodeId}`}
                       onSelect={() => setSelectedNodeId(node.nodeId)}
                     >
                       <Check
                         className={`mr-2 h-4 w-4 ${selectedNodeId === node.nodeId ? "opacity-100" : "opacity-0"}`}
                       />
-                      {node.nodeName}
+                      {node.nodeDisplayName}
                     </CommandItem>
                   ))}
                 </CommandGroup>

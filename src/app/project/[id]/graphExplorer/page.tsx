@@ -7,20 +7,17 @@ type Props = {
   }>;
 };
 
-export default async function Page({
-  params,
-}: Props) {
+export default async function Page({ params }: Props) {
   const { id } = await params;
 
   const graph = await getGraphData(id);
-
-
 
   return (
     <ClientGraph
       nodes={graph.nodes}
       nodeTypes={graph.nodeTypes}
       adjacency={graph.adjacency}
+      ProjectEdgeLevels={graph.projectEdgeLevels}
     />
   );
 }

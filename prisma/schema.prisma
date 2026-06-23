@@ -9,17 +9,23 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-
+  
 }
 
 model Project {
-  projectId          String            @id @default(cuid())
+  projectId          String   @id @default(cuid())
   projectName        String
   projectDescription String?
+
+  // Auditing Columns (Native DB Engine Defaults)
+  last_update_dts   DateTime @default(now()) @updatedAt
+  insert_dts        DateTime @default(now())
+  insert_user_name  String   @default(dbgenerated("current_user"))
 
   // 1-to-many relationships scoped by projectId
   nodeTypes ProjectNodeType[]
   edgeTypes ProjectEdgeType[]
+  edgeLevels ProjectEdgeLevel[]
   nodes     Node[]
   edges     Edge[]
 
@@ -29,6 +35,11 @@ model Project {
 model ProjectNodeType {
   projectId String
   nodeType  String
+
+  // Auditing Columns (Native DB Engine Defaults)
+  last_update_dts   DateTime @default(now()) @updatedAt
+  insert_dts        DateTime @default(now())
+  insert_user_name  String   @default(dbgenerated("current_user"))
 
   // Relations
   project   Project @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
@@ -43,6 +54,11 @@ model ProjectEdgeType {
   projectId String
   edgeType  String
 
+  // Auditing Columns (Native DB Engine Defaults)
+  last_update_dts   DateTime @default(now()) @updatedAt
+  insert_dts        DateTime @default(now())
+  insert_user_name  String   @default(dbgenerated("current_user"))
+
   // Relations
   project   Project @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
   edges     Edge[]
@@ -52,12 +68,37 @@ model ProjectEdgeType {
   @@map("project_edge_types")
 }
 
+
+model ProjectEdgeLevel {
+  projectId String
+  edgeLevel  String
+
+  // Auditing Columns (Native DB Engine Defaults)
+  last_update_dts   DateTime @default(now()) @updatedAt
+  insert_dts        DateTime @default(now())
+  insert_user_name  String   @default(dbgenerated("current_user"))
+
+  // Relations
+  project   Project @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
+  edges     Edge[]
+
+  // Necessary for Edge to point to a valid combination of projectId + edgeLevel
+  @@id([projectId, edgeLevel])
+  @@map("project_edge_levels")
+}
+
 model Node {
   nodeId    String  @id @default(cuid())
   nodeName  String
+  nodeDisplayName  String?
   projectId String
   nodeType  String
   url       String? // Added: Optional URL field for the node
+  attributes Json @default("{}")
+  // Auditing Columns (Native DB Engine Defaults)
+  last_update_dts   DateTime @default(now()) @updatedAt
+  insert_dts        DateTime @default(now())
+  insert_user_name  String   @default(dbgenerated("current_user"))
 
   // Relations
   project   Project         @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
@@ -65,7 +106,7 @@ model Node {
   // Composite Foreign Key constraint: forces nodeType to belong to this exact projectId
   type      ProjectNodeType @relation(fields: [projectId, nodeType], references: [projectId, nodeType])
 
-  // Self-referential graph relations for tracking connected Edges
+  // Self-referential graph relationships for tracking connected Edges
   outgoingEdges Edge[] @relation("FromNode")
   incomingEdges Edge[] @relation("ToNode")
 
@@ -79,6 +120,7 @@ model Edge {
   edgeName          String
   projectId         String
   edgeType          String
+  edgeLevel          String
   fromNodeId        String
   toNodeId          String
   edgeWeight        Float? // Added: Optional numeric edge weight
@@ -86,11 +128,18 @@ model Edge {
   edgeWeightUnit    String? // Added: Optional unit text
   url               String? // Added: Optional URL field for the edge
 
+attributes Json @default("{}")
+  // Auditing Columns (Native DB Engine Defaults)
+  last_update_dts   DateTime @default(now()) @updatedAt
+  insert_dts        DateTime @default(now())
+  insert_user_name  String   @default(dbgenerated("current_user"))
+
   // Relations
   project    Project         @relation(fields: [projectId], references: [projectId], onDelete: Cascade)
 
   // Composite Foreign Key constraint: forces edgeType to belong to this exact projectId
   type       ProjectEdgeType @relation(fields: [projectId, edgeType], references: [projectId, edgeType])
+  level       ProjectEdgeLevel @relation(fields: [projectId, edgeLevel], references: [projectId, edgeLevel])
 
   // Constrains the source/target nodes to belong strictly to the SAME project as the edge
   fromNode   Node            @relation("FromNode", fields: [projectId, fromNodeId], references: [projectId, nodeId])
