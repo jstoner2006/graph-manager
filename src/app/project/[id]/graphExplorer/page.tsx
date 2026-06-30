@@ -15,9 +15,11 @@ export default async function Page({ params }: Props) {
   return (
     <ClientGraph
       nodes={graph.nodes}
+      edges={graph.edges}
       nodeTypes={graph.nodeTypes}
       adjacency={graph.adjacency}
       ProjectEdgeLevels={graph.projectEdgeLevels}
+      projectEdgeTypes={graph.projectEdgeTypes}
     />
   );
 }

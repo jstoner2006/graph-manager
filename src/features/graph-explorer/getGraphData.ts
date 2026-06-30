@@ -2,10 +2,11 @@ import { getEdgesByProjectID } from "@/queries/edges/actions";
 import { getNodesbyProjectID } from "@/queries/nodes/action";
 import { getProjectNodeTypesbyProjectID } from "@/queries/nodetypes/action";
 import { getEdgeLevelsByProjectID } from "@/queries/edgeLevels/actions";
+import { getEdgeTypesByProjectID } from "@/queries/edgetypes/actions";
 import { ProjectEdgeLevel } from "@prisma/client";
 import { Edge } from "@/types/edge";
-import { Node } from "@/types/node"; // ✅ Explicit Type reference
-import { EdgeType } from "@/types/edgeType";
+import { Node } from "@prisma/client";
+import { ProjectEdgeType } from "@prisma/client";
 import { ProjectNodeType } from "@/types/NodeType";
 
 export type GraphNode = {
@@ -36,6 +37,7 @@ export type GraphData = {
   nodeTypes: ProjectNodeType[];
   adjacency: GraphAdjacency;
   projectEdgeLevels: ProjectEdgeLevel[];
+  projectEdgeTypes: ProjectEdgeType[];
 };
 
 function buildAdjacency(nodes: Node[], edges: Edge[]): GraphAdjacency {
@@ -62,29 +64,17 @@ function buildAdjacency(nodes: Node[], edges: Edge[]): GraphAdjacency {
 }
 
 export async function getGraphData(projectId: string): Promise<GraphData> {
-  const [nodes, edges, nodeTypes, projectEdgeLevels] = await Promise.all([
-    getNodesbyProjectID(projectId),
+  const [nodes, edges, nodeTypes, projectEdgeLevels, projectEdgeTypes] =
+    await Promise.all([
+      getNodesbyProjectID(projectId),
 
-    getEdgesByProjectID(projectId),
-    getProjectNodeTypesbyProjectID(projectId),
-    getEdgeLevelsByProjectID(projectId),
-  ]);
+      getEdgesByProjectID(projectId),
+      getProjectNodeTypesbyProjectID(projectId),
+      getEdgeLevelsByProjectID(projectId),
+      getEdgeTypesByProjectID(projectId),
+    ]);
 
   const adjacency = buildAdjacency(nodes, edges);
-  //  console.log(adjacency.outgoing["cmqptr6vr00x2m0qnclmb8vtf"]); correctly getting 127
-  // console.log(adjacency.outgoing["cmqptr6vq00cwm0qnh7a9dxlp"]); correctly getting 1
-  //console.log(adjacency.outgoing["cmqptr6vq00ctm0qnkhz6z9mo"]); correctly getting 10
-  //console.log(adjacency.outgoing["cmqptr6vq00igm0qny7i3l358"]); correctly getting 4
-
-  console.log(
-    "adjacency.outgoing.length",
-    Object.keys(adjacency.outgoing).length,
-  );
-
-  console.log(
-    "adjacency.incoming.length",
-    Object.keys(adjacency.incoming).length,
-  );
 
   return {
     nodes,
@@ -92,5 +82,6 @@ export async function getGraphData(projectId: string): Promise<GraphData> {
     nodeTypes,
     adjacency,
     projectEdgeLevels,
+    projectEdgeTypes,
   };
 }

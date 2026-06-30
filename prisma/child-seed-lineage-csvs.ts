@@ -15,6 +15,7 @@ interface CsvNode {
   nodeName: string;
   nodeType: string;
   nodeDisplayName: string;
+  url: string;
 }
 
 interface CsvEdge {
@@ -22,6 +23,9 @@ interface CsvEdge {
   to: string;
   weight: string;
   edgeType: string; // CSV values are initially strings
+  edgeWeight: string;
+  edgeWeightMeasure: string;
+  edgeWeightUnit: string;
   edgeLevel: string;
 }
 
@@ -96,6 +100,7 @@ export async function main() {
           nodeName: node.nodeName,
           nodeType: node.nodeType,
           nodeDisplayName: node.nodeDisplayName,
+          url: node.url,
         })),
       },
     },
@@ -129,9 +134,9 @@ export async function main() {
       edgeType: edge.edgeType,
       fromNodeId: fromNodeId,
       toNodeId: toNodeId,
-      edgeWeight: parseFloat(edge.weight) || null, // Parse text weights to floats securely
-      edgeWeightMeasure: null,
-      edgeWeightUnit: null,
+      edgeWeight: parseFloat(edge.edgeWeight) ?? null, // Parse text weights to floats securely
+      edgeWeightMeasure: edge.edgeWeightMeasure,
+      edgeWeightUnit: edge.edgeWeightUnit,
       edgeLevel: edge.edgeLevel,
     };
   });

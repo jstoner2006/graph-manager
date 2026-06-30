@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState, useTransition } from "react";
 import {
   ReactFlow,
   useNodesState,
@@ -18,122 +18,224 @@ import {
 } from "d3-force";
 
 import "@xyflow/react/dist/style.css";
-import { Node as PrismaNode, Edge as PrismaEdge } from "@prisma/client";
+import {
+  Node as PrismaNode,
+  Edge as PrismaEdge,
+  ProjectEdgeType,
+} from "@prisma/client";
+import { getEdgesByProjectIDandEdgeType } from "@/queries/edges/specific_edges";
+import EdgeTypeSelector from "./ui/EdgeTypeSelector"; // Directly imports from neighboring folder
 
 interface ClientWeightedFlowPageProps {
+  projectId: string;
   initialNodes: PrismaNode[];
   initialEdges: PrismaEdge[];
+  projectEdgeTypes: ProjectEdgeType[];
 }
 
 export default function ClientWeightedFlowPage({
+  projectId,
   initialNodes,
   initialEdges,
+  projectEdgeTypes,
 }: ClientWeightedFlowPageProps) {
-  // 1. Initialize state. We use a fallback layout array directly inside useNodesState
-  const [nodes, setNodes, onNodesChange] = useNodesState<Node>(() =>
-    initialNodes.map(
-      (node: PrismaNode): Node => ({
-        id: String(node.nodeId), // TypeScript will autocomplete .nodeId cleanly!
-        data: { label: node.nodeName }, // TypeScript will autocomplete .nodeName cleanly!
-        position: { x: 0, y: 0 },
-      }),
-    ),
+  const [selectedEdgeTypes, setSelectedEdgeTypes] = useState<string[]>([]);
+  const [isPending, startTransition] = useTransition();
+
+  // 1. Transform initial Prisma Nodes to React Flow format (0,0 maps cleanly for SSR)
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node[]>(() =>
+    initialNodes.map((node) => ({
+      id: String(node.nodeId),
+      data: { label: node.nodeName },
+      position: { x: 0, y: 0 },
+    })),
   );
 
-  // 2. Initialize Edges: Transform PrismaEdge -> ReactFlow Edge
+  // Core formatting pipeline for incoming Prisma edges
+  const mapPrismaEdges = (prismaEdges: PrismaEdge[]): Edge[] =>
+    prismaEdges.map((edge) => ({
+      id: String(edge.edgeId),
+      source: String(edge.fromNodeId),
+      target: String(edge.toNodeId),
+      data: { weight: Number(edge.edgeWeight || 0.5) },
+    }));
+
+  // 2. Initialize Edges State
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge[]>(() =>
-    initialEdges.map(
-      (edge: PrismaEdge): Edge => ({
-        id: String(edge.edgeId),
-        source: String(edge.fromNodeId), // Type-safe column check
-        target: String(edge.toNodeId), // Type-safe column check
-        data: { weight: Number(edge.edgeWeight || 0.5) },
-      }),
-    ),
+    mapPrismaEdges(initialEdges),
   );
+
   const simulationRef = useRef<any>(null);
 
+  // --- FILTER CHANGE OPERATIONS ---
+
+  const handleToggleEdgeType = (type: string) => {
+    const updatedTypes = selectedEdgeTypes.includes(type)
+      ? selectedEdgeTypes.filter((t) => t !== type)
+      : [...selectedEdgeTypes, type];
+
+    setSelectedEdgeTypes(updatedTypes);
+    fetchFilteredEdges(updatedTypes);
+  };
+
+  const handleClearSelection = () => {
+    setSelectedEdgeTypes([]);
+    fetchFilteredEdges([]);
+  };
+
+  const fetchFilteredEdges = (types: string[]) => {
+    startTransition(async () => {
+      const rawEdges = await getEdgesByProjectIDandEdgeType(projectId, types);
+      setEdges(mapPrismaEdges(rawEdges));
+    });
+  };
+
+  // --- D3 SIMULATION ENGINE PIPELINE ---
+
   useEffect(() => {
-    // If no nodes are loaded yet, don't spin up the engine
     if (!nodes.length) return;
 
-    // 2. Map coordinates explicitly onto the root object where D3 demands them
     const d3Nodes = nodes.map((n) => ({
       ...n,
-      x: n.position?.x ?? 0,
-      y: n.position?.y ?? 0,
+      x: n.position?.x === 0 ? Math.random() * 100 : n.position.x,
+      y: n.position?.y === 0 ? Math.random() * 100 : n.position.y,
     }));
+
     const d3Edges = edges.map((e) => ({ ...e }));
-    console.log(d3Nodes, "d3 nodes", d3Edges, "d3 edges");
-    // 3. Kick off the simulation
+
     const simulation = forceSimulation(d3Nodes)
-      .force("charge", forceManyBody().strength(-400))
+      .force("charge", forceManyBody().strength(-300))
       .force(
         "link",
         forceLink(d3Edges)
           .id((d: any) => d.id)
-          .distance(150)
-          .strength((link: any) => link.data?.weight ?? 0.1),
+          .distance(120),
       )
       .force("center", forceCenter(400, 300));
 
-    // 4. Sync the coordinates into React Flow's nested state
-    simulation.on("tick", () => {
-      setNodes((currentNodes) =>
-        currentNodes.map((currentNode) => {
-          // Find the corresponding calculated math data from D3
-          const d3Node = d3Nodes.find((n: any) => n.id === currentNode.id);
-          if (!d3Node) return currentNode;
+    // Fast-forward simulation cycles upfront for static frame loading
+    simulation.stop();
+    for (let i = 0; i < 300; i++) {
+      simulation.tick();
+    }
 
-          // Return your untouched React Flow node, ONLY updating the position object
-          return {
-            ...currentNode,
-            position: { x: d3Node.x, y: d3Node.y },
-          };
-        }),
-      );
-    });
+    setNodes((currentNodes) =>
+      currentNodes.map((currentNode) => {
+        const matchingD3Node = d3Nodes.find((n) => n.id === currentNode.id);
+        if (!matchingD3Node) return currentNode;
+
+        return {
+          ...currentNode,
+          position: {
+            x: Number.isFinite(matchingD3Node.x) ? matchingD3Node.x : 0,
+            y: Number.isFinite(matchingD3Node.y) ? matchingD3Node.y : 0,
+          },
+        };
+      }),
+    );
 
     simulationRef.current = simulation;
-
     return () => simulation.stop();
-  }, [initialNodes]); // 👈 Re-run physics safely if server data reloads
+  }, [initialNodes, edges]);
 
-  // --- D3 Drag Handlers ---
+  // --- INTERACTIVE DRAG physics HANDLERS ---
+
   const onNodeDragStart = (event: any, node: any) => {
     const simulation = simulationRef.current;
     if (!simulation) return;
-    simulation.alphaTarget(0.3).restart();
-    const d3Node = simulation.nodes().find((n: any) => n.id === node.id);
-    if (d3Node) {
-      d3Node.fx = node.position.x;
-      d3Node.fy = node.position.y;
-    }
+    simulation.alpha(1);
   };
 
   const onNodeDrag = (event: any, node: any) => {
     const simulation = simulationRef.current;
     if (!simulation) return;
+
     const d3Node = simulation.nodes().find((n: any) => n.id === node.id);
     if (d3Node) {
       d3Node.fx = node.position.x;
       d3Node.fy = node.position.y;
     }
+
+    simulation.tick();
+
+    setNodes((currentNodes) =>
+      currentNodes.map((currentNode) => {
+        const matchingD3Node = simulation
+          .nodes()
+          .find((n: any) => n.id === currentNode.id);
+        if (!matchingD3Node) return currentNode;
+        return {
+          ...currentNode,
+          position: { x: matchingD3Node.x, y: matchingD3Node.y },
+        };
+      }),
+    );
   };
 
   const onNodeDragStop = (event: any, node: any) => {
     const simulation = simulationRef.current;
     if (!simulation) return;
-    simulation.alphaTarget(0);
+
     const d3Node = simulation.nodes().find((n: any) => n.id === node.id);
     if (d3Node) {
       d3Node.fx = null;
       d3Node.fy = null;
     }
+
+    for (let i = 0; i < 80; i++) {
+      simulation.tick();
+    }
+
+    setNodes((currentNodes) =>
+      currentNodes.map((currentNode) => {
+        const matchingD3Node = simulation
+          .nodes()
+          .find((n: any) => n.id === currentNode.id);
+        if (!matchingD3Node) return currentNode;
+        return {
+          ...currentNode,
+          position: { x: matchingD3Node.x, y: matchingD3Node.y },
+        };
+      }),
+    );
+
+    simulation.stop();
   };
 
   return (
-    <div style={{ width: "100vw", height: "100vh" }}>
+    <div
+      style={{
+        width: "100vw",
+        height: "100vh",
+        background: "#1a1a1a",
+        position: "relative",
+      }}
+    >
+      {/* Absolute Control Overlay Menu Container */}
+      <div
+        style={{
+          position: "absolute",
+          top: 20,
+          left: 20,
+          zIndex: 10,
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
+        }}
+      >
+        <EdgeTypeSelector
+          projectEdgeTypes={projectEdgeTypes}
+          selectedEdgeTypes={selectedEdgeTypes}
+          onToggle={handleToggleEdgeType}
+          onClear={handleClearSelection}
+        />
+        {isPending && (
+          <span style={{ fontSize: "12px", color: "#a1a1aa" }}>
+            Calculating Physics...
+          </span>
+        )}
+      </div>
+
       <ReactFlow
         nodes={nodes}
         edges={edges}
