@@ -1,5 +1,6 @@
 import { useMemo, useState, useRef } from "react";
 import dagre from "dagre";
+import { MarkerType } from "@xyflow/react";
 // FIX 1: Corrected BFS tracking depth correctly and tracking queue visits safely
 function traverse(
   startNodeId: string,
@@ -111,14 +112,18 @@ export function useGraphData({
     return new Set([...upstream, ...downstream]);
   }, [selectedNodeId, hopsBefore, hopsAfter, dynamicAdjacency]);
 
-  //console.log("visibleNodeIds", visibleNodeIds); //is populate
-
   const reactFlowData = useMemo(() => {
     const rfNodesBase = nodes
       .filter((n) => visibleNodeIds.has(n.nodeId))
       .map((node) => ({
         id: node.nodeId,
-        data: { label: node.nodeDisplayName },
+        data: {
+          label: node.nodeDisplayName,
+          attributes: node.attributes,
+          lastUpdateDts: node.last_update_dts.toString(),
+          url: node.url,
+        },
+
         position: { x: 0, y: 0 },
       }));
 
@@ -131,6 +136,12 @@ export function useGraphData({
             id: `${sourceId}-${targetId}`,
             source: sourceId,
             target: targetId,
+            markerEnd: {
+              type: MarkerType.ArrowClosed, // Options: Arrow or ArrowClosed
+              width: 20, // Optional: Custom size
+              height: 20, // Optional: Custom size
+              color: "#b1b1b7", // Optional: Custom color matching your theme
+            },
           });
         }
       }

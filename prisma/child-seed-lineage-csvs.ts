@@ -16,6 +16,10 @@ interface CsvNode {
   nodeType: string;
   nodeDisplayName: string;
   url: string;
+  last_update_dts: string;
+  insert_dts: string;
+  insert_user_name: string;
+  attributes: string;
 }
 
 interface CsvEdge {
@@ -101,6 +105,14 @@ export async function main() {
           nodeType: node.nodeType,
           nodeDisplayName: node.nodeDisplayName,
           url: node.url,
+          last_update_dts: node.last_update_dts
+            ? new Date(node.last_update_dts.replace(" ", "T"))
+            : undefined,
+          insert_dts: node.insert_dts
+            ? new Date(node.insert_dts.replace(" ", "T"))
+            : undefined,
+          insert_user_name: node.insert_user_name,
+          attributes: node.attributes,
         })),
       },
     },

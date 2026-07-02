@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   ReactFlow,
   Background,
@@ -35,6 +35,8 @@ export function GraphVizCanvas({
   const [toolTipPos, setToolTipPos] = useState({ x: 0, y: 0 });
 
   const [dragMode, setDragMode] = useState<"pan" | "lasso">("pan");
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [showTooltip, setShowTooltip] = useState(false);
 
   useEffect(() => {
     setNodes(initialNodes);
@@ -104,10 +106,43 @@ export function GraphVizCanvas({
     { clientX, clientY }: React.MouseEvent,
     hoveredNode: Node,
   ) => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
     const screenPos = { x: clientX, y: clientY };
 
     setHoveredNode(hoveredNode);
     setToolTipPos(screenPos);
+    console.log(hoveredNode);
+  };
+
+  const handleOnMouseLeave = () => {
+    timeoutRef.current = setTimeout(() => {
+      setHoveredNode(null);
+      setShowTooltip(false);
+      timeoutRef.current = null;
+    }, 200);
+  };
+
+  const handleToolTipMouseEnter = () => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    setShowTooltip(true);
+  };
+
+  const handleToolTipMouseLeave = () => {
+    console.log("tooltip mouse leave fired");
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    timeoutRef.current = setTimeout(() => {
+      setShowTooltip(false);
+      setHoveredNode(null);
+      timeoutRef.current = null;
+    }, 200);
   };
 
   return (
@@ -188,7 +223,7 @@ export function GraphVizCanvas({
           // onNodeMouseEnter={(_, clickedNode) => setHoveredNode}
 
           onNodeMouseEnter={handleOnNodeMouseEnter}
-          onNodeMouseLeave={() => setHoveredNode(null)}
+          onNodeMouseLeave={handleOnMouseLeave}
           colorMode="dark"
           fitView
           // providing the toggle between lasso and pan
@@ -204,11 +239,16 @@ export function GraphVizCanvas({
           <Controls />
           <Background />
         </ReactFlow>
-        {/* this code is technically working but right now not useful the ui needs cleaned up
+
         {hoveredNode && (
-          <NodeToolTip node={hoveredNode} x={toolTipPos.x} y={toolTipPos.y} />
+          <NodeToolTip
+            node={hoveredNode}
+            x={toolTipPos.x}
+            y={toolTipPos.y}
+            onMouseEnter={handleToolTipMouseEnter}
+            onMouseLeave={handleToolTipMouseLeave}
+          />
         )}
-        */}
       </div>
     </div>
   );

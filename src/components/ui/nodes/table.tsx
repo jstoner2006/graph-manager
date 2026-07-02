@@ -1,5 +1,5 @@
 import React from "react";
-import { Node } from "@/types/node";
+import { Node } from "@prisma/client";
 interface NodeTableProps {
   nodes?: Node[];
   onEdit?: (node: Node) => void;
@@ -10,14 +10,14 @@ const mockNodes: Node[] = [
   {
     nodeId: "clj123456000008mn8z2b9xyz",
     nodeName: "Primary Authentication API",
+    nodeDisplayName: "Primary Authentication API",
     projectId: "proj_987654",
     nodeType: "API_GATEWAY",
-  },
-  {
-    nodeId: "clj789012000108mn8z2b9abc",
-    nodeName: "Users PostgreSQL Cache",
-    projectId: "proj_987654",
-    nodeType: "DATABASE",
+    url: "",
+    attributes: "",
+    last_update_dts: new Date(),
+    insert_dts: new Date(),
+    insert_user_name: "",
   },
 ];
 
@@ -45,9 +45,9 @@ export default function NodeTable({
                 {/* Header using your exact formatting layout */}
                 <thead>
                   <tr>
-                    <th scope="col">Node Name</th>
-
-                    <th scope="col">Type</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Node Type</th>
+                    <th scope="col">Last Updated</th>
                     <th scope="col">
                       <span className="sr-only">Edit</span>
                     </th>
@@ -64,13 +64,17 @@ export default function NodeTable({
                       {/* Node ID */}
 
                       {/* Node Name */}
-                      <td>{node.nodeName}</td>
+                      <td>{node.nodeDisplayName}</td>
                       {/* Project ID */}
 
                       {/* Node Type Status Badge */}
                       <td>
                         <span>{node.nodeType}</span>
                       </td>
+                      <td>
+                        <span>{node.last_update_dts.toString()}</span>
+                      </td>
+
                       {/* Actions */}
                       <td>
                         <button

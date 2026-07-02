@@ -6,11 +6,21 @@ interface NodeToolTipProps {
   node: Node | null;
   x: number;
   y: number;
+  onMouseEnter: () => void;
+  onMouseLeave: () => void;
 }
 
-export default function NodeToolTip({ node, x, y }: NodeToolTipProps) {
+export default function NodeToolTip({
+  node,
+  x,
+  y,
+  onMouseEnter,
+  onMouseLeave,
+}: NodeToolTipProps) {
   // 1. Extract the nodeName safely from the data key, matching your structure
   const nodeName = node?.data?.label || "Unnamed Node";
+  const nodeLastupdateDts = node?.data?.lastUpdateDts || "no last update dts";
+  const nodeUrl = node?.data?.url || null;
   const nodeId = node?.data.id;
 
   // 2. Extract the coordinates of the node so we can place the tooltip right over it
@@ -21,6 +31,8 @@ export default function NodeToolTip({ node, x, y }: NodeToolTipProps) {
   //console.log("x pos is  ", x, "y pos is ", y);
   return (
     <div
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
       style={{
         position: "fixed",
         // 3. Shift the tooltip horizontally to the center of the node,
@@ -37,14 +49,52 @@ export default function NodeToolTip({ node, x, y }: NodeToolTipProps) {
         border: "1px solid #475569", // Slate 600
         boxShadow: "0 4px 12px rgba(0, 0, 0, 0.5)",
         zIndex: 1000, // Forces it to float cleanly on top of everything
-        pointerEvents: "none", // Prevents the tooltip from stealing mouse clicks
+        pointerEvents: "auto",
         fontFamily: "sans-serif",
         fontSize: "12px",
         whiteSpace: "nowrap", // Keeps the text on a single line
       }}
     >
       {/* 4. Display the required details */}
-      <div style={{ fontWeight: "bold", marginBottom: "2px" }}>{nodeName}</div>
+
+      {nodeUrl !== "NULL" ? (
+        <div>
+          Node Name:
+          <a
+            href={nodeUrl}
+            target="_blank"
+            rel="noopener noreferrer nofollow"
+            style={{
+              color: "#60a5fa", // Only the name turns blue
+              textDecoration: "underline",
+              cursor: "pointer",
+              pointerEvents: "auto",
+            }}
+          >
+            {nodeName}
+          </a>
+        </div>
+      ) : (
+        <div
+          style={{
+            fontWeight: "bold",
+            marginBottom: "2px",
+            pointerEvents: "none",
+          }}
+        >
+          Node Name: {nodeName}
+        </div>
+      )}
+
+      <div
+        style={{
+          fontWeight: "bold",
+          marginBottom: "2px",
+          pointerEvents: "none",
+        }}
+      >
+        Last Updated: {nodeLastupdateDts}
+      </div>
     </div>
   );
 }

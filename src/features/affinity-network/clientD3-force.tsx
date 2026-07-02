@@ -22,15 +22,19 @@ import {
   Node as PrismaNode,
   Edge as PrismaEdge,
   ProjectEdgeType,
+  ProjectNodeType,
 } from "@prisma/client";
 import { getEdgesByProjectIDandEdgeType } from "@/queries/edges/specific_edges";
-import EdgeTypeSelector from "./ui/EdgeTypeSelector"; // Directly imports from neighboring folder
+import { getNodesByProjectIDandNodeType } from "@/queries/nodes/specific_nodes";
+import EdgeTypeSelector from "./ui/EdgeTypeSelector";
+import NodeTypeSelector from "./ui/NodeTypeSelector";
 
 interface ClientWeightedFlowPageProps {
   projectId: string;
   initialNodes: PrismaNode[];
   initialEdges: PrismaEdge[];
   projectEdgeTypes: ProjectEdgeType[];
+  projectNodeTypes: ProjectNodeType[];
 }
 
 export default function ClientWeightedFlowPage({
@@ -38,17 +42,42 @@ export default function ClientWeightedFlowPage({
   initialNodes,
   initialEdges,
   projectEdgeTypes,
+  projectNodeTypes,
 }: ClientWeightedFlowPageProps) {
-  const [selectedEdgeTypes, setSelectedEdgeTypes] = useState<string[]>([]);
+  //store values from the drop downs
+  const [stagedselectedEdgeTypes, setstagedselectedEdgeTypes] = useState<
+    string[]
+  >([]);
+  const [stagedselectedNodeTypes, setstagedselectedNodeTypes] = useState<
+    string[]
+  >([]);
+
+  //move the values from drop downs to committed on button click
+  const [committedselectedEdgeTypes, setcommittedselectedEdgeTypes] = useState<
+    string[]
+  >([]);
+  const [committedselectedNodeTypes, setcommittedselectedNodeTypes] = useState<
+    string[]
+  >([]);
+
+  const handleApplyChanges = () => {
+    setcommittedselectedEdgeTypes(stagedselectedEdgeTypes);
+    setcommittedselectedNodeTypes(stagedselectedNodeTypes);
+  };
+
   const [isPending, startTransition] = useTransition();
 
   // 1. Transform initial Prisma Nodes to React Flow format (0,0 maps cleanly for SSR)
-  const [nodes, setNodes, onNodesChange] = useNodesState<Node[]>(() =>
-    initialNodes.map((node) => ({
+
+  const mapPrismaNodes = (prismaNodes: PrismaNode[]): Node[] =>
+    prismaNodes.map((node) => ({
       id: String(node.nodeId),
       data: { label: node.nodeName },
       position: { x: 0, y: 0 },
-    })),
+    }));
+
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node[]>(() =>
+    mapPrismaNodes(initialNodes),
   );
 
   // Core formatting pipeline for incoming Prisma edges
@@ -68,18 +97,18 @@ export default function ClientWeightedFlowPage({
   const simulationRef = useRef<any>(null);
 
   // --- FILTER CHANGE OPERATIONS ---
-
+  //needs to be created on first time
   const handleToggleEdgeType = (type: string) => {
-    const updatedTypes = selectedEdgeTypes.includes(type)
-      ? selectedEdgeTypes.filter((t) => t !== type)
-      : [...selectedEdgeTypes, type];
+    const updatedTypes = stagedselectedEdgeTypes.includes(type)
+      ? stagedselectedEdgeTypes.filter((t) => t !== type)
+      : [...stagedselectedEdgeTypes, type];
 
-    setSelectedEdgeTypes(updatedTypes);
+    setstagedselectedEdgeTypes(updatedTypes);
     fetchFilteredEdges(updatedTypes);
   };
 
   const handleClearSelection = () => {
-    setSelectedEdgeTypes([]);
+    setstagedselectedEdgeTypes([]);
     fetchFilteredEdges([]);
   };
 
@@ -90,10 +119,41 @@ export default function ClientWeightedFlowPage({
     });
   };
 
+  //handling node filters
+  const handleToggleNodeType = (type: string) => {
+    const updatedNodeTypes = stagedselectedNodeTypes.includes(type)
+      ? stagedselectedNodeTypes.filter((t) => t !== type)
+      : [...stagedselectedNodeTypes, type];
+
+    setstagedselectedNodeTypes(updatedNodeTypes);
+    fetchFilteredNodes(updatedNodeTypes);
+  };
+
+  const handleClearNodeSelection = () => {
+    setstagedselectedNodeTypes([]);
+    fetchFilteredNodes([]);
+  };
+
+  const fetchFilteredNodes = (types: string[]) => {
+    startTransition(async () => {
+      const rawNodes = await getNodesByProjectIDandNodeType(projectId, types);
+      setNodes(mapPrismaNodes(rawNodes));
+    });
+  };
+
+  //needs to be created on first time
+
   // --- D3 SIMULATION ENGINE PIPELINE ---
 
   useEffect(() => {
-    if (!nodes.length) return;
+    if (
+      !nodes.length ||
+      committedselectedEdgeTypes.length == 0 ||
+      committedselectedNodeTypes.length == 0
+    ) {
+      console.log("guard executed");
+      return;
+    }
 
     const d3Nodes = nodes.map((n) => ({
       ...n,
@@ -225,31 +285,52 @@ export default function ClientWeightedFlowPage({
       >
         <EdgeTypeSelector
           projectEdgeTypes={projectEdgeTypes}
-          selectedEdgeTypes={selectedEdgeTypes}
+          selectedEdgeTypes={stagedselectedEdgeTypes}
           onToggle={handleToggleEdgeType}
           onClear={handleClearSelection}
+        />
+        <NodeTypeSelector
+          projectNodeTypes={projectNodeTypes}
+          selectedNodeTypes={stagedselectedNodeTypes}
+          onToggle={handleToggleNodeType}
+          onClear={handleClearNodeSelection}
         />
         {isPending && (
           <span style={{ fontSize: "12px", color: "#a1a1aa" }}>
             Calculating Physics...
           </span>
         )}
+        <button
+          onClick={handleApplyChanges}
+          className="w-full bg-black text-zinc-200 hover:text-white font-medium text-xs rounded transition-all duration-150 shadow-md
+    rounded=full
+          px-4 py-2.5                  {/* 🚀 Increased padding for more space around text */}
+    border-2 border-zinc-700     {/* 🚀 Increased border thickness (border-2) */}
+    hover:border-zinc-500        {/* Lighter border on hover */}
+    active:bg-zinc-950"
+        >
+          Generate Graph
+        </button>
       </div>
-
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        colorMode="dark"
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onNodeDragStart={onNodeDragStart}
-        onNodeDrag={onNodeDrag}
-        onNodeDragStop={onNodeDragStop}
-        fitView
-      >
-        <Background />
-        <Controls />
-      </ReactFlow>
+      {committedselectedEdgeTypes.length > 0 &&
+      committedselectedNodeTypes.length > 0 ? (
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          colorMode="dark"
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onNodeDragStart={onNodeDragStart}
+          onNodeDrag={onNodeDrag}
+          onNodeDragStop={onNodeDragStop}
+          fitView
+        >
+          <Background />
+          <Controls />
+        </ReactFlow>
+      ) : (
+        <div></div>
+      )}
     </div>
   );
 }
