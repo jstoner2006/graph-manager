@@ -23,8 +23,8 @@ export default function AnalysisNavLinks() {
       icon: DocumentTextIcon,
     },
     {
-      name: "affinity Network",
-      href: `/project/${id}/affinityNetwork`,
+      name: "force directed",
+      href: `/project/${id}/forceDirected`,
       icon: DocumentTextIcon,
     },
     {

@@ -5,7 +5,7 @@ import { getProjectNodeTypesbyProjectID } from "@/queries/nodetypes/action";
 import { getNodesbyProjectID } from "@/queries/nodes/action";
 
 import "@xyflow/react/dist/style.css";
-import ClientWeightedFlowPage from "@/features/affinity-network/clientD3-force";
+import ForceContainer from "@/features/force-directed/force-container";
 
 interface PageProps {
   params: Promise<{
@@ -27,7 +27,7 @@ export default async function Page({ params }: PageProps) {
   const initialEdges = await getEdgesByProjectIDandEdgeType(id, []);
 
   return (
-    <ClientWeightedFlowPage
+    <ForceContainer
       projectId={id}
       initialNodes={nodes}
       initialEdges={initialEdges}
