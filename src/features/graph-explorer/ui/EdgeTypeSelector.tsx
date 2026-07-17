@@ -18,7 +18,7 @@ import {
 import { ProjectEdgeType } from "@prisma/client";
 
 interface EdgeTypeSelectorProps {
-  projectEdgeTypes: ProjectEdgeType[];
+  projectEdgeTypes: string[];
   selectedEdgeTypes: string[];
   onToggle: (type: string) => void;
   onClear: () => void;
@@ -56,20 +56,20 @@ export default function EdgeTypeSelector({
                 <Check
                   className={`mr-2 h-4 w-4 ${selectedEdgeTypes.length === 0 ? "opacity-100" : "opacity-0"}`}
                 />
-                Clear Selection
+                All Edge Types
               </CommandItem>
               {projectEdgeTypes.map((type) => {
-                const isSelected = selectedEdgeTypes.includes(type.edgeType);
+                const isSelected = selectedEdgeTypes.includes(type);
                 return (
                   <CommandItem
-                    key={type.edgeType}
-                    value={type.edgeType.toLowerCase()}
-                    onSelect={() => onToggle(type.edgeType)}
+                    key={type}
+                    value={type.toLowerCase()}
+                    onSelect={() => onToggle(type)}
                   >
                     <Check
                       className={`mr-2 h-4 w-4 ${isSelected ? "opacity-100" : "opacity-0"}`}
                     />
-                    {type.edgeType}
+                    {type}
                   </CommandItem>
                 );
               })}

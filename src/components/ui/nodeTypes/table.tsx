@@ -35,8 +35,8 @@ export default function NodeTypesTable({
                 {/* Header using your exact formatting layout */}
                 <thead>
                   <tr>
-                    <th scope="col">Project ID</th>
                     <th scope="col">Node Type</th>
+
                     <th scope="col">
                       <span className="sr-only">Edit</span>
                     </th>
@@ -49,24 +49,6 @@ export default function NodeTypesTable({
                     <tr key={nodetypes.nodeType}>
                       {/* Node ID */}
                       <td>{nodetypes.nodeType}</td>
-
-                      {/* Node Type Status Badge */}
-                      <td>
-                        <span>{nodetypes.nodeType}</span>
-                      </td>
-                      {/* Actions */}
-                      <td>
-                        <button
-                          type="button"
-                          // onClick={() => onEdit?.(node)}
-                          className="text-indigo-600 hover:text-indigo-900 focus:outline-none focus:underline"
-                        >
-                          Edit
-                          <span className="sr-only">
-                            , {nodetypes.nodeType}
-                          </span>
-                        </button>
-                      </td>
                     </tr>
                   ))}
 

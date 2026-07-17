@@ -1,6 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
-import { ProjectNodeType } from "@/types/NodeType";
+import { ProjectNodeType } from "@prisma/client";
 
 export async function getProjectNodeTypesbyProjectID(
   projectId: string,
@@ -16,8 +16,5 @@ export async function getProjectNodeTypesbyProjectID(
     orderBy: { nodeType: "asc" },
   });
 
-  return rawProjectNodeTypes.map((nodeType) => ({
-    projectId: nodeType.projectId,
-    nodeType: nodeType.nodeType,
-  }));
+  return rawProjectNodeTypes;
 }

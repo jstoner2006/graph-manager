@@ -16,19 +16,23 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { ProjectEdgeLevel } from "@prisma/client";
 
 interface EdgeLevelSelectorProps {
-  projectEdgeLevels: ProjectEdgeLevel[];
-  selectedEdgeLevel: string;
-  onSelectEdgeLevel: (level: string) => void;
+  projectEdgeLevels: string[];
+  selectedEdgeLevels: string[];
+  onSelectEdgeLevels: (edgeLevels: string[]) => void;
 }
 
 export function EdgeLevelSelector({
   projectEdgeLevels,
-  selectedEdgeLevel,
-  onSelectEdgeLevel,
+  selectedEdgeLevels,
+  onSelectEdgeLevels,
 }: EdgeLevelSelectorProps) {
+  const chooseAll = () => {
+    console.log("choose all executed");
+    onSelectEdgeLevels(projectEdgeLevels);
+  };
+
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -37,10 +41,9 @@ export function EdgeLevelSelector({
           role="combobox"
           className="w-[200px] justify-between"
         >
-          {selectedEdgeLevel
-            ? projectEdgeLevels.find((el) => el.edgeLevel === selectedEdgeLevel)
-                ?.edgeLevel
-            : "All Edge Levels"}
+          {selectedEdgeLevels.length === 0
+            ? "All Edge Levels"
+            : `${selectedEdgeLevels.length} Selected `}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -51,29 +54,29 @@ export function EdgeLevelSelector({
             <CommandEmpty>No level found.</CommandEmpty>
             <CommandGroup>
               {/* Default Option to clear filter */}
-              <CommandItem
-                value="all-levels"
-                onSelect={() => onSelectEdgeLevel("")}
-              >
+              <CommandItem value="all-levels" onSelect={chooseAll}>
                 <Check
-                  className={`mr-2 h-4 w-4 ${selectedEdgeLevel === "" ? "opacity-100" : "opacity-0"}`}
+                  className={`mr-2 h-4 w-4 ${selectedEdgeLevels.length === projectEdgeLevels.length ? "opacity-100" : "opacity-0"}`}
                 />
                 All Edge Levels
               </CommandItem>
 
-              {/* Dynamic levels map */}
-              {projectEdgeLevels.map((level) => (
-                <CommandItem
-                  key={level.edgeLevel}
-                  value={level.edgeLevel.toLowerCase()}
-                  onSelect={() => onSelectEdgeLevel(level.edgeLevel)}
-                >
-                  <Check
-                    className={`mr-2 h-4 w-4 ${selectedEdgeLevel === level.edgeLevel ? "opacity-100" : "opacity-0"}`}
-                  />
-                  {level.edgeLevel}
-                </CommandItem>
-              ))}
+              {projectEdgeLevels.map((level) => {
+                const isSelected = selectedEdgeLevels.includes(level);
+
+                return (
+                  <CommandItem
+                    key={level}
+                    value={level.toLowerCase()}
+                    onSelect={() => onSelectEdgeLevels([level])}
+                  >
+                    <Check
+                      className={`mr-2 h-4 w-4 ${isSelected ? "opacity-100" : "opacity-0"}`}
+                    />
+                    {level}
+                  </CommandItem>
+                );
+              })}
             </CommandGroup>
           </CommandList>
         </Command>

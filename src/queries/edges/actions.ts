@@ -2,7 +2,7 @@
 
 import "server-only";
 import { prisma } from "@/lib/prisma";
-import { Edge } from "@/types/edge";
+import { Edge } from "@prisma/client";
 
 export async function getEdgesByProjectID(projectId: string): Promise<Edge[]> {
   if (!projectId) {

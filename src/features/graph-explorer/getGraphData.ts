@@ -1,10 +1,10 @@
 import { getEdgesByProjectID } from "@/queries/edges/actions";
 import { getNodesbyProjectID } from "@/queries/nodes/action";
 import { getProjectNodeTypesbyProjectID } from "@/queries/nodetypes/action";
-import { getEdgeLevelsByProjectID } from "@/queries/edgeLevels/actions";
-import { getEdgeTypesByProjectID } from "@/queries/edgetypes/actions";
+import { getEdgeLevelsByProjectIDString } from "@/queries/edgeLevels/getEdgeLevelsbyProjectIDstring";
+import { getEdgeTypesByProjectIDString } from "@/queries/edgetypes/getEdgeTypesbyProjectIDString";
 import { ProjectEdgeLevel } from "@prisma/client";
-import { Edge } from "@/types/edge";
+import { Edge } from "@prisma/client";
 import { Node } from "@prisma/client";
 import { ProjectEdgeType } from "@prisma/client";
 import { ProjectNodeType } from "@/types/NodeType";
@@ -70,8 +70,8 @@ export async function getGraphData(projectId: string): Promise<GraphData> {
 
       getEdgesByProjectID(projectId),
       getProjectNodeTypesbyProjectID(projectId),
-      getEdgeLevelsByProjectID(projectId),
-      getEdgeTypesByProjectID(projectId),
+      getEdgeLevelsByProjectIDString(projectId),
+      getEdgeTypesByProjectIDString(projectId),
     ]);
 
   const adjacency = buildAdjacency(nodes, edges);

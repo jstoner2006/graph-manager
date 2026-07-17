@@ -59,17 +59,6 @@ export default function EdgeTable({
                       {/* Project ID */}
 
                       <td>{edge.edgeType}</td>
-
-                      {/* Actions */}
-                      <td>
-                        <button
-                          type="button"
-                          // onClick={() => onEdit?.(node)}
-                          className="text-indigo-600 hover:text-indigo-900 focus:outline-none focus:underline"
-                        >
-                          Edit<span className="sr-only">, {edge.edgeName}</span>
-                        </button>
-                      </td>
                     </tr>
                   ))}
 

@@ -34,7 +34,6 @@ export default function EdgeTypeTable({
                 {/* Header using your exact formatting layout */}
                 <thead>
                   <tr>
-                    <th scope="col">Project ID</th>
                     <th scope="col">Edge Type</th>
 
                     <th scope="col">
@@ -51,15 +50,6 @@ export default function EdgeTypeTable({
                       <td>{edgeType.edgeType}</td>
 
                       {/* Actions */}
-                      <td>
-                        <button
-                          type="button"
-                          // onClick={() => onEdit?.(node)}
-                        >
-                          Edit
-                          <span className="sr-only">, {edgeType.edgeType}</span>
-                        </button>
-                      </td>
                     </tr>
                   ))}
 

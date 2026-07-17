@@ -28,6 +28,11 @@ export default function AnalysisNavLinks() {
       icon: DocumentTextIcon,
     },
     {
+      name: "conected  components",
+      href: `/project/${id}/connected-components`,
+      icon: DocumentTextIcon,
+    },
+    {
       name: "Shortest Path",
       href: `/project/${id}/shortestPath`,
       icon: DocumentTextIcon,

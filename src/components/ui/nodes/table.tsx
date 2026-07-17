@@ -76,14 +76,6 @@ export default function NodeTable({
                       </td>
 
                       {/* Actions */}
-                      <td>
-                        <button
-                          type="button"
-                          // onClick={() => onEdit?.(node)}
-                        >
-                          Edit<span className="sr-only">, {node.nodeName}</span>
-                        </button>
-                      </td>
                     </tr>
                   ))}
 

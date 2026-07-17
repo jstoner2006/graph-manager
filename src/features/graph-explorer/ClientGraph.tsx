@@ -39,8 +39,8 @@ type Props = {
   edges: Edge[];
   nodeTypes: NodeType[];
   adjacency: GraphAdjacency;
-  ProjectEdgeLevels: ProjectEdgeLevel[];
-  projectEdgeTypes: ProjectEdgeType[];
+  ProjectEdgeLevels: string[];
+  projectEdgeTypes: string[];
 };
 
 export default function ClientGraph({
@@ -51,9 +51,11 @@ export default function ClientGraph({
   ProjectEdgeLevels,
   projectEdgeTypes,
 }: Props) {
-  {
-    /**used to reset the scroll bar when changing searches */
-  }
+  /**
+   *
+   *
+   *
+   */
 
   const commandListRef = useRef<HTMLDivElement>(null);
 
@@ -61,15 +63,15 @@ export default function ClientGraph({
   const [selectedNodeId, setSelectedNodeId] = useState("");
   const [hopsBefore, setHopsBefore] = useState(2);
   const [hopsAfter, setHopsAfter] = useState(2);
-  const [selectedEdgeLevel, setSelectedEdgeLevel] = useState("");
-  const [selectedEdgeTypes, setSelectedEdgeTypes] = useState<string[]>([]);
+  const [selectedEdgeLevels, setSelectedEdgeLevels] =
+    useState<string[]>(ProjectEdgeLevels);
+  const [selectedEdgeTypes, setSelectedEdgeTypes] =
+    useState<string[]>(projectEdgeTypes);
 
   const availableNodes = useMemo(() => {
     if (!selectedNodeType) return nodes;
     return nodes.filter((n) => n.nodeType === selectedNodeType);
   }, [nodes, selectedNodeType]);
-
-  console.log("rexecution of clientgrpah comp");
 
   const {
     nodes: rfNodes,
@@ -83,6 +85,7 @@ export default function ClientGraph({
     hopsAfter,
     selectedEdgeTypes,
     selectedNodeType,
+    selectedEdgeLevels,
   });
 
   //console.log(rfNodesT, rfEdgesT);
@@ -99,34 +102,47 @@ export default function ClientGraph({
     <>
       <div className="flex gap-4 mb-4 text-white">
         {/* UPDATED: Multi-select Edge Type Selector */}
-        <EdgeTypeSelector
-          projectEdgeTypes={projectEdgeTypes}
-          selectedEdgeTypes={selectedEdgeTypes}
-          onToggle={handleToggleEdgeType}
-          onClear={() => setSelectedEdgeTypes([])}
-        />
+        <div className="flex flex-col gap-1.5">
+          {" "}
+          Select Edge Type
+          <EdgeTypeSelector
+            projectEdgeTypes={projectEdgeTypes}
+            selectedEdgeTypes={selectedEdgeTypes}
+            onToggle={handleToggleEdgeType}
+            onClear={() => setSelectedEdgeTypes(projectEdgeTypes)}
+          />
+        </div>
         {/* Edge Level Selector */}
-        <EdgeLevelSelector
-          projectEdgeLevels={ProjectEdgeLevels}
-          selectedEdgeLevel={selectedEdgeLevel}
-          onSelectEdgeLevel={setSelectedEdgeLevel}
-        />
+        <div className="flex flex-col gap-1.5">
+          Select Edge Level
+          <EdgeLevelSelector
+            projectEdgeLevels={ProjectEdgeLevels}
+            selectedEdgeLevels={selectedEdgeLevels}
+            onSelectEdgeLevels={setSelectedEdgeLevels}
+          />
+        </div>
         {/* Node Type Selector */}
-        <NodeTypeSelector
-          nodeTypes={nodeTypes}
-          selectedNodeType={selectedNodeType}
-          onSelectNodeType={setSelectedNodeType}
-        />
+        <div className="flex flex-col gap-1.5">
+          Select Node Type
+          <NodeTypeSelector
+            nodeTypes={nodeTypes}
+            selectedNodeType={selectedNodeType}
+            onSelectNodeType={setSelectedNodeType}
+          />
+        </div>
         {/* Node Selector */}
-        <NodeSelector
-          nodes={nodes}
-          availableNodes={availableNodes}
-          selectedNodeId={selectedNodeId}
-          onSelectNodeId={setSelectedNodeId}
-        />
+        <div className="flex flex-col gap-1.5">
+          Select Node
+          <NodeSelector
+            nodes={nodes}
+            availableNodes={availableNodes}
+            selectedNodeId={selectedNodeId}
+            onSelectNodeId={setSelectedNodeId}
+          />
+        </div>
 
         {/* Hops Inputs */}
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col items-center gap-2">
           <label className="text-xs text-zinc-400">Hops Before:</label>
           <input
             className="bg-zinc-900 text-white border border-zinc-700 px-2 py-1 rounded w-16"
@@ -136,7 +152,7 @@ export default function ClientGraph({
             onChange={(e) => setHopsBefore(Number(e.target.value))}
           />
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col items-center gap-2">
           <label className="text-xs text-zinc-400">Hops After:</label>
           <input
             className="bg-zinc-900 text-white border border-zinc-700 px-2 py-1 rounded w-16"

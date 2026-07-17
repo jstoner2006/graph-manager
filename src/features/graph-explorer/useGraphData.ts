@@ -5,7 +5,11 @@ import { MarkerType } from "@xyflow/react";
 function traverse(
   startNodeId: string,
   maxDepth: number,
-  map: Record<string, string[]>,
+  map: Record<string, string[]> /**
+   *given a start node, depth, and adjacency list
+   *returns all nodes within hop count
+   *
+   */,
 ) {
   const visited = new Set<string>();
   const queued = new Set<string>([startNodeId]); // Track what entered the queue to prevent cycles/duplicates
@@ -60,24 +64,36 @@ function layoutWithDagre(nodesBase: any[], edgesBase: any[]) {
   });
 }
 
-export function useGraphData({
-  nodes,
-  edges,
-  selectedNodeId,
-  hopsBefore,
-  hopsAfter,
-  selectedEdgeTypes,
-  selectedNodeType,
-}) {
+export function useGraphData(
+  {
+    nodes,
+    edges,
+    selectedNodeId,
+    hopsBefore,
+    hopsAfter,
+    selectedEdgeTypes,
+    selectedNodeType,
+    selectedEdgeLevels,
+  } /** returns the data needed for react
+   * stores adjacency lists in dynamic adjacency
+   * captures visible node list using traverse(hops, nodes, adj)
+   * adds xy for nodes with dagre
+   *
+   */,
+) {
   const dynamicAdjacency = useMemo(() => {
     const outgoing: Record<string, string[]> = {};
     const incoming: Record<string, string[]> = {};
 
+    console.log("useGraphData:selectedEdgeLevels", selectedEdgeLevels);
     // 1. Filter the database edges based on your UI multi-select state
     const filteredEdges = edges.filter((edge) => {
       // If no edge types are selected, allow all edges
-      if (selectedEdgeTypes.length === 0) return true;
-      return selectedEdgeTypes.includes(edge.edgeType);
+
+      return (
+        selectedEdgeTypes.includes(edge.edgeType) &&
+        selectedEdgeLevels.includes(edge.edgeLevel)
+      );
     });
 
     // 2. Dynamically build the incoming and outgoing maps from the filtered results
@@ -93,7 +109,7 @@ export function useGraphData({
     });
 
     return { outgoing, incoming };
-  }, [edges, selectedEdgeTypes]); //
+  }, [edges, selectedEdgeTypes, selectedEdgeLevels]); //
 
   const visibleNodeIds = useMemo(() => {
     if (!selectedNodeId) return new Set<string>();
