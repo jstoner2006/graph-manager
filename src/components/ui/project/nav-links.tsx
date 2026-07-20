@@ -58,7 +58,7 @@ export default function NavLinks() {
                   !isActive,
 
                 // ACTIVE STATE: Distinct blue indicator popping against the dark sidebar
-                "bg-blue-950/50 text-blue-400 border border-blue-900/50 shadow-sm shadow-blue-500/5":
+                "bg-blue-950/50 text-blue-400 border border-gray-100 shadow-sm shadow-blue-500/5":
                   isActive,
               },
             )}

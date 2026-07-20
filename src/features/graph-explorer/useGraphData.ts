@@ -43,7 +43,7 @@ function traverse(
 function layoutWithDagre(nodesBase: any[], edgesBase: any[]) {
   const g = new dagre.graphlib.Graph();
   g.setDefaultEdgeLabel(() => ({}));
-  g.setGraph({ rankdir: "LR", nodesep: 80, ranksep: 320 });
+  g.setGraph({ rankdir: "LR", nodesep: 80, ranksep: 620 });
 
   nodesBase.forEach((node) => {
     g.setNode(node.id, { width: node.measured?.width ?? 180, height: 40 });

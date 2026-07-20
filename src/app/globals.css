@@ -123,3 +123,51 @@ body {
     font-size: 0.75rem; /* Keeps dense primary keys compact */
   }
 }
+
+@layer utilities {
+  /* 1. CANVAS BACKGROUND */
+  .react-flow__pane {
+    @apply bg-[#1F1F1F]; /* VS Code Dark Modern background */
+  }
+
+  /* 2. NODE BORDERS & FONT SIZES */
+  .react-flow__node {
+    @apply !bg-[#1E1E1E] !border-5 !border-[4px] !border-white !text-white;
+
+    /* 2. TEXT & LAYOUT */
+    @apply rounded-lg shadow-md p-4 !text-lg font-medium tracking-wide;
+    @apply transition-colors duration-200;
+    @apply !w-max !whitespace-nowrap;
+  }
+
+  .react-flow__node.is-anchor {
+    @apply !w-max !whitespace-nowrap !font-bold !border-3 !border-[#3b82f6];
+    @apply !shadow-[0_0_15px_rgba(59,130,246,0.6)] !bg-[#1e293b] !text-white;
+  }
+
+  /* Adjust internal built-in node labels if needed */
+  .react-flow__node .react-flow__node-label {
+    @apply text-sm leading-normal;
+  }
+
+  /* Global selection ring state for any node */
+  .react-flow__node.selected {
+    @apply border-indigo-500 ring-2 ring-indigo-500/30 outline-none;
+  }
+
+  /* 3. EDGE WIDTHS */
+  /* This targets the visible SVG line engine globally */
+  .react-flow__edge-path {
+    @apply stroke-slate-500 !stroke-[4px] transition-all;
+  }
+
+  /* Edge widths when a user selects an edge line */
+  .react-flow__edge.selected .react-flow__edge-path {
+    @apply stroke-indigo-400 stroke-[4px];
+  }
+
+  /* The temporary connection line dragged from handles by the mouse cursor */
+  .react-flow__connection-path {
+    @apply stroke-indigo-400 stroke-[3px];
+  }
+}

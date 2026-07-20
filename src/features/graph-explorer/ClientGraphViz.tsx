@@ -54,6 +54,8 @@ export function GraphVizCanvas({
   const liveAnchorNode = nodes.find((n) => n.id === anchorNodeId);
   const isMeasured = liveAnchorNode?.measured?.width !== undefined;
 
+  ///focus on react flow layout on to the center of the
+  //anchored node
   useEffect(() => {
     if (!anchorNodeId) return;
 
@@ -78,16 +80,7 @@ export function GraphVizCanvas({
     if (initialAnchorNode && node.id === initialAnchorNode.id) {
       return {
         ...node,
-        style: {
-          ...node.style,
-          width: "max-content",
-          whiteSpace: "nowrap",
-          fontWeight: "bold",
-          border: "3px solid #3b82f6", // Neon Blue border
-          boxShadow: "0 0 15px rgba(59, 130, 246, 0.6)", // Highlighting Glow
-          backgroundColor: "#1e293b", // Contrasting dark tile
-          color: "#ffffff",
-        },
+        className: `${node.className || ""} is-anchor`,
       };
     } else {
       return {
@@ -224,7 +217,6 @@ export function GraphVizCanvas({
 
           onNodeMouseEnter={handleOnNodeMouseEnter}
           onNodeMouseLeave={handleOnMouseLeave}
-          colorMode="dark"
           fitView
           // providing the toggle between lasso and pan
 

@@ -23,7 +23,7 @@ interface ConnectedComponentsVizProp {
 function layoutWithDagre(nodesBase: any[], edgesBase: any[]) {
   const g = new dagre.graphlib.Graph();
   g.setDefaultEdgeLabel(() => ({}));
-  g.setGraph({ rankdir: "LR", nodesep: 80, ranksep: 320 });
+  g.setGraph({ rankdir: "LR", nodesep: 80, ranksep: 620 });
 
   console.log(nodesBase);
   nodesBase.forEach((node) => {
@@ -71,11 +71,7 @@ export default function ConnectedComponentsViz({
             width: "100%",
           }}
         >
-          <ReactFlow
-            nodes={layoutedNodes}
-            edges={cc.edges}
-            colorMode="dark"
-          ></ReactFlow>
+          <ReactFlow nodes={layoutedNodes} edges={cc.edges}></ReactFlow>
         </div>
       ) : (
         <div>{cc.name} does not have any</div>
