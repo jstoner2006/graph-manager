@@ -8,36 +8,15 @@ import { Edge } from "@prisma/client";
 import { Node } from "@prisma/client";
 import { ProjectEdgeType } from "@prisma/client";
 import { ProjectNodeType } from "@/types/NodeType";
-
-export type GraphNode = {
-  id: string;
-  name: string;
-  displayName: string;
-  nodeTypeId: string;
-};
-
-export type GraphEdge = {
-  id: string;
-  sourceNodeId: string;
-  targetNodeId: string;
-};
+import { ProjectGraphContext } from "@/types/project-graph-context";
+import { toNode } from "@/utils/node.mapper";
+import { toEdge } from "@/utils/edge.mapper";
+import { Nodes } from "@/types/nodes";
+import { Edges } from "@/types/edges";
 
 export type GraphAdjacency = {
   outgoing: Record<string, string[]>;
   incoming: Record<string, string[]>;
-};
-
-export type EdgeLevel = {
-  EdgeLevel: number;
-};
-
-export type GraphData = {
-  nodes: Node[];
-  edges: Edge[];
-  nodeTypes: ProjectNodeType[];
-  adjacency: GraphAdjacency;
-  projectEdgeLevels: string[];
-  projectEdgeTypes: string[];
 };
 
 function buildAdjacency(nodes: Node[], edges: Edge[]): GraphAdjacency {
@@ -63,7 +42,9 @@ function buildAdjacency(nodes: Node[], edges: Edge[]): GraphAdjacency {
   };
 }
 
-export async function getGraphData(projectId: string): Promise<GraphData> {
+export async function getGraphData(
+  projectId: string,
+): Promise<ProjectGraphContext> {
   const [nodes, edges, nodeTypes, projectEdgeLevels, projectEdgeTypes] =
     await Promise.all([
       getNodesbyProjectID(projectId),
@@ -75,13 +56,15 @@ export async function getGraphData(projectId: string): Promise<GraphData> {
     ]);
 
   const adjacency = buildAdjacency(nodes, edges);
+  const fNodes: Nodes = nodes.map((n) => toNode(n));
+  const fEdges: Edges = edges.map((e) => toEdge(e));
+  const fNodeTypes: string[] = nodeTypes.map((n) => n.nodeType);
 
   return {
-    nodes,
-    edges,
-    nodeTypes,
-    adjacency,
-    projectEdgeLevels,
-    projectEdgeTypes,
+    nodes: fNodes,
+    edges: fEdges,
+    nodeTypes: fNodeTypes,
+    edgeLevels: projectEdgeLevels,
+    edgeTypes: projectEdgeTypes,
   };
 }

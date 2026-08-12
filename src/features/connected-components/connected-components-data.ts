@@ -25,7 +25,6 @@ export const ConnectedComponentsData = (
   InitialNodes: Node[],
   InitialEdges: Edge[],
 ) => {
-  //a bridge to get back to the nodes
   console.log(
     "generating connected components started with ",
     InitialEdges.length,
@@ -86,8 +85,6 @@ export const ConnectedComponentsData = (
             n_count++;
 
             q.push(neigh);
-
-            //using the edge bridge add the original edges
           }
         }
         if (n_count > most_prom_node_count) {
@@ -116,10 +113,6 @@ export const ConnectedComponentsData = (
     }
   }
   console.log(cc_array.length, "Connected Components generated");
-  //console.log("second set", cc_array[1]);
-  //console.log("third set", cc_array[2]);
-  //console.log("fourth set", cc_array[3]);
-  //console.log("fifth set", cc_array[4]);
 
   return cc_array;
 };

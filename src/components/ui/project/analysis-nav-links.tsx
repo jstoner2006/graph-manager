@@ -23,6 +23,11 @@ export default function AnalysisNavLinks() {
       icon: DocumentTextIcon,
     },
     {
+      name: "Graph Explorer",
+      href: `/project/${id}/graphExplorer-refactor`,
+      icon: DocumentTextIcon,
+    },
+    {
       name: "force directed",
       href: `/project/${id}/forceDirected`,
       icon: DocumentTextIcon,

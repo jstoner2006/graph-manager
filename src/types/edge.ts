@@ -1,10 +1,4 @@
-// types/edge.ts
+import { EdgeCustomData } from "./edge-custom-data";
+import { Edge as ReactFlowEdge } from "@xyflow/react";
 
-export interface Edge {
-  edgeId: string;
-  edgeName: string;
-  projectId: string;
-  edgeType: string;
-  fromNodeId: string;
-  toNodeId: string;
-}
+export type Edge = ReactFlowEdge<EdgeCustomData>;

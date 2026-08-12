@@ -1,14 +1,5 @@
 "use client";
 import React, { useState } from "react";
-import {
-  ReactFlow,
-  useNodesState,
-  useEdgesState,
-  Background,
-  Controls,
-  Edge,
-  Node,
-} from "@xyflow/react";
 
 import "@xyflow/react/dist/style.css";
 import {
@@ -24,8 +15,6 @@ import TypeFilters from "./ui/Typefilters";
 import ConnectedComponentsViz from "./connected-components-viz";
 import { ConnectedComponentsData } from "./connected-components-data";
 import ConnectedComponentFilter from "./ui/ConnectedComponentFilters";
-
-import { Client } from "pg";
 
 interface ConnectedComponentsContainerProps {
   projectId: string;

@@ -100,27 +100,46 @@ export async function main() {
 
       // Create the structural nodes bound to this project
       nodes: {
-        create: parsedNodes.map((node) => ({
-          nodeName: node.nodeName,
-          nodeType: node.nodeType,
-          nodeDisplayName: node.nodeDisplayName,
-          url: node.url,
-          last_update_dts: node.last_update_dts
-            ? new Date(node.last_update_dts.replace(" ", "T"))
-            : undefined,
-          insert_dts: node.insert_dts
-            ? new Date(node.insert_dts.replace(" ", "T"))
-            : undefined,
-          insert_user_name: node.insert_user_name,
-          attributes: node.attributes,
-        })),
+        create: parsedNodes.map((node) => {
+          // Parse the JSON string into an object so Prisma handles it natively
+          let parsedAttributes = node.attributes;
+
+          if (
+            typeof node.attributes === "string" &&
+            node.attributes.trim() !== ""
+          ) {
+            try {
+              parsedAttributes = JSON.parse(node.attributes);
+            } catch (e) {
+              console.error(
+                `Failed to parse attributes for node ${node.nodeName}:`,
+                e,
+              );
+            }
+          }
+
+          return {
+            nodeName: node.nodeName,
+            nodeType: node.nodeType,
+            nodeDisplayName: node.nodeDisplayName,
+            url: node.url,
+            last_update_dts: node.last_update_dts
+              ? new Date(node.last_update_dts.replace(" ", "T"))
+              : undefined,
+            insert_dts: node.insert_dts
+              ? new Date(node.insert_dts.replace(" ", "T"))
+              : undefined,
+            insert_user_name: node.insert_user_name,
+            // Pass the parsed object, not the raw JSON string
+            attributes: parsedAttributes,
+          };
+        }),
       },
     },
     include: {
       nodes: true,
     },
   });
-
   console.log(
     `✅ Created project "${project.projectName}" with ID: ${project.projectId}`,
   );

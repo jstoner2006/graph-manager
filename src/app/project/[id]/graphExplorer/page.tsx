@@ -17,7 +17,6 @@ export default async function Page({ params }: Props) {
       nodes={graph.nodes}
       edges={graph.edges}
       nodeTypes={graph.nodeTypes}
-      adjacency={graph.adjacency}
       ProjectEdgeLevels={graph.projectEdgeLevels}
       projectEdgeTypes={graph.projectEdgeTypes}
     />
