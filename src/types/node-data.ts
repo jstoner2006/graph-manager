@@ -5,6 +5,6 @@ export type NodeData = {
   url?: string | null;
   nodeType?: string | null;
   fullNodeName?: string | null;
-  lastUpdateDts?: Date;
+  lastUpdateDts?: string;
   attributes?: JsonValue | null;
 };

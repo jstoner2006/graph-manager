@@ -23,7 +23,7 @@ export default function AnalysisNavLinks() {
       icon: DocumentTextIcon,
     },
     {
-      name: "Graph Explorer",
+      name: "Graph Explorer Refactor",
       href: `/project/${id}/graphExplorer-refactor`,
       icon: DocumentTextIcon,
     },
