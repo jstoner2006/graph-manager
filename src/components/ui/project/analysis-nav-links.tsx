@@ -38,6 +38,11 @@ export default function AnalysisNavLinks() {
       icon: DocumentTextIcon,
     },
     {
+      name: "conected  components refactor",
+      href: `/project/${id}/connected-components-refactor`,
+      icon: DocumentTextIcon,
+    },
+    {
       name: "Shortest Path",
       href: `/project/${id}/shortestPath`,
       icon: DocumentTextIcon,

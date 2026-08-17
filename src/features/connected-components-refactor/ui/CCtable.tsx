@@ -1,0 +1,78 @@
+import React from "react";
+
+type ccSummary = { name?: string; nodeCount?: string; edgeCount?: string };
+type ccTableProp = { cc?: ccSummary[] };
+
+// Mock data to ensure the table renders out of the box
+const mockCC: ccSummary[] = [
+  {
+    name: "Mock Graph",
+    nodeCount: "0",
+    edgeCount: "0",
+  },
+];
+
+export default function CCTable({ cc = mockCC }: ccTableProp = {}) {
+  return (
+    <div>
+      <div>
+        <div>
+          <h1>All Connected Components for rendering</h1>
+          <p>All ccs.</p>
+        </div>
+      </div>
+
+      <div>
+        <div>
+          <div>
+            <div>
+              <table>
+                {/* Header using your exact formatting layout */}
+                <thead>
+                  <tr>
+                    <th scope="col">Name</th>
+
+                    <th scope="col">Nodes</th>
+                    <th scope="col">Edges</th>
+
+                    <th scope="col">
+                      <span className="sr-only">Edit</span>
+                    </th>
+                  </tr>
+                </thead>
+
+                {/* Body mapped directly to the Prisma schema fields */}
+                <tbody>
+                  {cc.map((cc: ccSummary) => (
+                    <tr key={cc.name}>
+                      {/* edge ID */}
+                      <td>
+                        <a href="/nowhere">{cc.name}</a>
+                      </td>
+                      {/* Node Name */}
+                      <td>{cc.nodeCount}</td>
+                      {/* Project ID */}
+
+                      <td>{cc.edgeCount}</td>
+                    </tr>
+                  ))}
+
+                  {cc.length === 0 && (
+                    <tr>
+                      <td
+                        colSpan={5}
+                        className="px-3 py-8 text-center text-sm text-gray-500"
+                      >
+                        No Connected Components found.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
