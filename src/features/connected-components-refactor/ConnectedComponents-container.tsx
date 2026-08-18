@@ -8,8 +8,12 @@ import { getFilteredGraphData } from "./getFilteredGraphData";
 import TypeFilters from "./ui/Typefilters";
 import ConnectedComponentsViz from "./connected-components-viz";
 import { ConnectedComponentsData } from "./connected-components-data";
-import ConnectedComponentFilter from "./ui/ConnectedComponentFilters";
+
 import { Graph } from "@/types/graph";
+import PageFilter from "./pageFilter";
+import { rankAndSortCCSummary } from "./assignRanks";
+import filterCCSummary from "./filterCCSummary";
+import PageNavigator from "./ui/PageNavigator";
 interface ConnectedComponentsContainerProps {
   projectId: string;
 
@@ -35,6 +39,12 @@ export default function ConnectedComponentsContainer({
     Graph[]
   >([{ nodes: [], edges: [], name: "", edgeCount: 0, nodeCount: 0 }]);
 
+  const [sortColumn, setSortColumn] = useState<string>("edgeCount");
+  const [sortOrder, setSortOrder] = useState<string>("desc");
+
+  const sortColumns: string[] = ["edgeCount", "nodeCount"];
+  const sortOrders: string[] = ["asc", "desc"];
+
   const ccSummary = ConnectedComponentsArray.map(
     ({ name, edgeCount, nodeCount }) => ({
       name: name,
@@ -43,13 +53,30 @@ export default function ConnectedComponentsContainer({
     }),
   );
 
+  //come back here and make this dynamic
+
+  const [pageSize, setPageSize] = useState<number>(10);
+  const [currentPage, setCurrentPage] = useState<number>(0);
+  const totalPages = Math.ceil(ccSummary.length / pageSize);
   const [showViz, setShowViz] = useState<boolean>(false);
 
-  const [selectedconnectedComponent, setselectedconnectedComponent] =
-    useState<Graph>({
-      nodes: [],
-      edges: [],
-    });
+  const ccSummaryRanked = rankAndSortCCSummary(
+    ccSummary,
+    sortColumn,
+    sortOrder,
+  );
+  const filteredCCSummary = filterCCSummary(
+    ccSummaryRanked,
+    currentPage * pageSize,
+    (currentPage + 1) * pageSize,
+  );
+
+  const [selectedConnectedComponentName, setSelectedConnectedComponentName] =
+    useState<string>("");
+
+  const selectedConnectedComponent: Graph = ConnectedComponentsArray.find(
+    (c) => c.name === selectedConnectedComponentName,
+  );
 
   //update state with drop down values
   const applyFilters = (EdgeTypes: string[], NodeTypes: string[]) => {
@@ -57,7 +84,7 @@ export default function ConnectedComponentsContainer({
   };
 
   /**
-   * Retrieve teh nodes and
+   * Retrieve the nodes and edges
    * @param edgeTypes
    * @param nodeTypes
    */
@@ -86,19 +113,34 @@ export default function ConnectedComponentsContainer({
         ></TypeFilters>
       </div>
       <div>
-        <ConnectedComponentFilter
-          ConnectedComponents={ConnectedComponentsArray}
-          applyConnectedComponentfilter={setselectedconnectedComponent}
+        <PageFilter
+          selectedColumn={sortColumn}
+          sortColumns={sortColumns}
+          selectedOrder={sortOrder}
+          sortOrders={sortOrders}
+          setSortColumn={setSortColumn}
+          setSortOrder={setSortOrder}
+        ></PageFilter>
+      </div>
+
+      <div>
+        <CCTable
+          cc={filteredCCSummary}
+          setSelectedConnectedComponentName={setSelectedConnectedComponentName}
           setShowViz={setShowViz}
-        ></ConnectedComponentFilter>
+        ></CCTable>
       </div>
       <div>
-        <CCTable cc={ccSummary}></CCTable>
+        <PageNavigator
+          currentPage={currentPage}
+          totalPages={totalPages}
+          setCurrentPage={setCurrentPage}
+        ></PageNavigator>
       </div>
       {showViz ? (
         <div>
           <ConnectedComponentsViz
-            ConnectedComponent={selectedconnectedComponent}
+            ConnectedComponent={selectedConnectedComponent}
           ></ConnectedComponentsViz>
         </div>
       ) : (
