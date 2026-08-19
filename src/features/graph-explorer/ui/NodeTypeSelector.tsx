@@ -17,13 +17,8 @@ import {
   CommandList,
 } from "@/components/ui/command";
 
-interface NodeType {
-  projectId: string;
-  nodeType: string;
-}
-
 interface NodeTypeSelectorProps {
-  nodeTypes: NodeType[];
+  nodeTypes: string[];
   selectedNodeType: string;
   onSelectNodeType: (type: string) => void;
 }
@@ -41,8 +36,8 @@ export function NodeTypeSelector({
           role="combobox"
           className="w-[220px] justify-between"
         >
-          {selectedNodeType
-            ? nodeTypes.find((t) => t.nodeType === selectedNodeType)?.nodeType
+          {nodeTypes.includes(selectedNodeType)
+            ? selectedNodeType
             : "All Types"}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -64,14 +59,14 @@ export function NodeTypeSelector({
               </CommandItem>
               {nodeTypes.map((type) => (
                 <CommandItem
-                  key={type.nodeType}
-                  value={type.nodeType}
-                  onSelect={() => onSelectNodeType(String(type.nodeType))}
+                  key={type}
+                  value={type}
+                  onSelect={() => onSelectNodeType(String(type))}
                 >
                   <Check
-                    className={`mr-2 h-4 w-4 ${selectedNodeType === type.nodeType ? "opacity-100" : "opacity-0"}`}
+                    className={`mr-2 h-4 w-4 ${selectedNodeType === type ? "opacity-100" : "opacity-0"}`}
                   />
-                  {type.nodeType}
+                  {type}
                 </CommandItem>
               ))}
             </CommandGroup>

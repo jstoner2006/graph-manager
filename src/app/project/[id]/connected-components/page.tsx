@@ -2,7 +2,6 @@ import { getEdgesByProjectIDandEdgeType } from "@/queries/edges/specific_edges";
 
 import { getEdgeTypesByProjectID } from "@/queries/edgetypes/actions";
 import { getProjectNodeTypesbyProjectID } from "@/queries/nodetypes/action";
-import { getNodesbyProjectID } from "@/queries/nodes/action";
 
 import "@xyflow/react/dist/style.css";
 import ConnectedComponentsContainer from "@/features/connected-components/ConnectedComponents-container";
@@ -21,9 +20,6 @@ export default async function Page({ params }: PageProps) {
     getEdgeTypesByProjectID(id),
     getProjectNodeTypesbyProjectID(id),
   ]);
-
-  // 2. Load the initial edge dataset (empty array means load all edge types)
-  const initialEdges = await getEdgesByProjectIDandEdgeType(id, []);
 
   return (
     <ConnectedComponentsContainer

@@ -6,10 +6,14 @@ import {
   useEdgesState,
   Background,
   Controls,
-  Edge,
-  Node,
+  Edge as RfEdge,
+  Node as RfNode,
 } from "@xyflow/react";
 import { Target } from "lucide-react";
+
+import { Node } from "@/types/node";
+import { Edge } from "@/types/edge";
+import { Graph } from "@/types/graph";
 
 type GraphAdjacency = {
   outgoing: Record<string, string[]>;
@@ -24,7 +28,7 @@ type GraphAdjacency = {
 export const ConnectedComponentsData = (
   InitialNodes: Node[],
   InitialEdges: Edge[],
-) => {
+): Graph[] => {
   console.log(
     "generating connected components started with ",
     InitialEdges.length,
@@ -54,16 +58,19 @@ export const ConnectedComponentsData = (
   }
 
   const painted = new Set();
-  const cc_array = [];
+  const cc_array: Graph[] = [];
   const q = new Denque<string>();
 
   for (const n of InitialNodes) {
     const start_id: string = n.id;
+
     //if the node has
     //not been visited and has edges add it to the
     if (!painted.has(start_id) && adj.has(start_id)) {
       const nodes: Node[] = [];
       const edges: Edge[] = [];
+      let totalNodeCount = 1;
+      let totalEdgeCount = 0;
 
       //add this node
       nodes.push(n);
@@ -76,6 +83,7 @@ export const ConnectedComponentsData = (
       while (q.length > 0) {
         const curr_node: string | undefined = q.shift();
         let n_count = 0;
+        totalNodeCount++;
         for (const neigh of adj.get(curr_node)) {
           //visit the neighbor if it
           //hasn't been visited
@@ -87,6 +95,8 @@ export const ConnectedComponentsData = (
             q.push(neigh);
           }
         }
+        totalEdgeCount = totalEdgeCount + n_count;
+
         if (n_count > most_prom_node_count) {
           most_prom_node_name = nodeMap.get(curr_node).data.label;
           most_prom_node_count = n_count;
@@ -102,13 +112,22 @@ export const ConnectedComponentsData = (
         }
       }
 
-      cc_array.push({ name: most_prom_node_name, nodes: nodes, edges: edges });
+      cc_array.push({
+        name: most_prom_node_name,
+        nodes: nodes,
+        edges: edges,
+        nodeCount: totalNodeCount,
+        edgeCount: totalEdgeCount,
+      });
     } else if (!adj.has(start_id)) {
       //if there are nodes without edges they are their own connected component
+      const emptyEdgeArray: Edge[] = [];
       cc_array.push({
         name: nodeMap.get(start_id).data.label,
         nodes: [nodeMap.get(start_id)],
-        edges: [],
+        edges: emptyEdgeArray,
+        nodeCount: 1,
+        edgeCount: 0,
       });
     }
   }

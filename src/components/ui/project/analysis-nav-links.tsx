@@ -22,24 +22,16 @@ export default function AnalysisNavLinks() {
       href: `/project/${id}/graphExplorer`,
       icon: DocumentTextIcon,
     },
-    {
-      name: "Graph Explorer Refactor",
-      href: `/project/${id}/graphExplorer-refactor`,
-      icon: DocumentTextIcon,
-    },
+
     {
       name: "force directed",
       href: `/project/${id}/forceDirected`,
       icon: DocumentTextIcon,
     },
+
     {
       name: "conected  components",
       href: `/project/${id}/connected-components`,
-      icon: DocumentTextIcon,
-    },
-    {
-      name: "conected  components refactor",
-      href: `/project/${id}/connected-components-refactor`,
       icon: DocumentTextIcon,
     },
     {

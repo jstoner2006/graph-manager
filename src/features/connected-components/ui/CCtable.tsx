@@ -29,12 +29,7 @@ export default function CCTable({
   };
   return (
     <div>
-      <div>
-        <div>
-          <h1>All Connected Components for rendering</h1>
-          <p>All ccs.</p>
-        </div>
-      </div>
+      <div></div>
 
       <div>
         <div>

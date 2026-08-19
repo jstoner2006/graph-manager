@@ -1,6 +1,10 @@
-import { useMemo, useState, useRef } from "react";
-import dagre from "dagre";
-import { MarkerType } from "@xyflow/react";
+import { useMemo } from "react";
+import { Nodes } from "@/types/nodes";
+import { Edges } from "@/types/edges";
+import { Node } from "@/types/node";
+import { layoutWithDagre } from "@/utils/graph.layout";
+import { Graph } from "@/types/graph";
+
 // FIX 1: Corrected BFS tracking depth correctly and tracking queue visits safely
 function traverse(
   startNodeId: string,
@@ -40,29 +44,15 @@ function traverse(
   return visited;
 }
 
-function layoutWithDagre(nodesBase: any[], edgesBase: any[]) {
-  const g = new dagre.graphlib.Graph();
-  g.setDefaultEdgeLabel(() => ({}));
-  g.setGraph({ rankdir: "LR", nodesep: 80, ranksep: 620 });
-
-  nodesBase.forEach((node) => {
-    g.setNode(node.id, { width: node.measured?.width ?? 180, height: 40 });
-  });
-
-  edgesBase.forEach((edge) => {
-    g.setEdge(edge.source, edge.target);
-  });
-
-  dagre.layout(g);
-
-  return nodesBase.map((node) => {
-    const pos = g.node(node.id);
-    return {
-      ...node,
-      position: { x: pos?.x ?? 0, y: pos?.y ?? 0 },
-    };
-  });
-}
+type UseGraphDataProp = {
+  nodes: Nodes;
+  edges: Edges;
+  selectedNodeId: string;
+  hopsBefore: number;
+  hopsAfter: number;
+  selectedEdgeTypes: string[];
+  selectedEdgeLevels: string[];
+};
 
 export function useGraphData(
   {
@@ -72,9 +62,8 @@ export function useGraphData(
     hopsBefore,
     hopsAfter,
     selectedEdgeTypes,
-    selectedNodeType,
     selectedEdgeLevels,
-  } /** returns the data needed for react
+  }: UseGraphDataProp /** returns the data needed for react
    * stores adjacency lists in dynamic adjacency
    * captures visible node list using traverse(hops, nodes, adj)
    * adds xy for nodes with dagre
@@ -89,17 +78,20 @@ export function useGraphData(
     // 1. Filter the database edges based on your UI multi-select state
     const filteredEdges = edges.filter((edge) => {
       // If no edge types are selected, allow all edges
-
+      const edgeType = edge.data?.edgeType;
+      const edgeLevel = edge.data?.edgeLevel;
       return (
-        selectedEdgeTypes.includes(edge.edgeType) &&
-        selectedEdgeLevels.includes(edge.edgeLevel)
+        edgeType !== undefined &&
+        edgeLevel !== undefined &&
+        selectedEdgeTypes.includes(edgeType) &&
+        selectedEdgeLevels.includes(edgeLevel)
       );
     });
 
     // 2. Dynamically build the incoming and outgoing maps from the filtered results
     filteredEdges.forEach((edge) => {
-      const source = edge.fromNodeId;
-      const target = edge.toNodeId;
+      const source = edge.source;
+      const target = edge.target;
 
       if (!outgoing[source]) outgoing[source] = [];
       outgoing[source].push(target);
@@ -129,21 +121,21 @@ export function useGraphData(
   }, [selectedNodeId, hopsBefore, hopsAfter, dynamicAdjacency]);
 
   const reactFlowData = useMemo(() => {
-    const rfNodesBase = nodes
-      .filter((n) => visibleNodeIds.has(n.nodeId))
+    const rfNodesBase: Nodes = nodes
+      .filter((n) => visibleNodeIds.has(n.id))
       .map((node) => ({
-        id: node.nodeId,
+        id: node.id,
         data: {
-          label: node.nodeDisplayName,
-          attributes: node.attributes,
-          lastUpdateDts: node.last_update_dts.toString(),
-          url: node.url,
+          label: node.data.label,
+          attributes: node.data.attributes,
+          lastUpdateDts: node.data.lastUpdateDts,
+          url: node.data.url,
         },
 
         position: { x: 0, y: 0 },
       }));
 
-    const rfEdges: any[] = [];
+    const rfEdges: Edges = [];
     for (const sourceId in dynamicAdjacency.outgoing) {
       const targets = dynamicAdjacency.outgoing[sourceId];
       for (const targetId of targets) {
@@ -152,27 +144,22 @@ export function useGraphData(
             id: `${sourceId}-${targetId}`,
             source: sourceId,
             target: targetId,
-            markerEnd: {
-              type: MarkerType.ArrowClosed, // Options: Arrow or ArrowClosed
-              width: 20, // Optional: Custom size
-              height: 20, // Optional: Custom size
-              color: "#b1b1b7", // Optional: Custom color matching your theme
-            },
           });
         }
       }
     }
-
-    const layoutedNodes = layoutWithDagre(rfNodesBase, rfEdges);
-    const anchorNode = layoutedNodes.find((node) => node.id === selectedNodeId);
-    return { nodes: layoutedNodes, edges: rfEdges, anchorNode: anchorNode };
-  }, [
-    nodes,
-    dynamicAdjacency,
-    visibleNodeIds,
-    selectedNodeId,
-    selectedEdgeTypes,
-  ]);
+    const graph: Graph = { nodes: rfNodesBase, edges: rfEdges };
+    const layedOutGraph: Graph = layoutWithDagre(graph);
+    const fallbackNode: Node = {
+      id: "none",
+      position: { x: 0, y: 0 },
+      data: {},
+    };
+    const anchorNode: Node =
+      layedOutGraph.nodes.find((node) => node.id === selectedNodeId) ??
+      fallbackNode;
+    return { graph: layedOutGraph, anchorNode: anchorNode };
+  }, [nodes, dynamicAdjacency, visibleNodeIds, selectedNodeId]);
 
   return reactFlowData;
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { Node } from "@/types/node";
+import { Node } from "@xyflow/react";
 
 interface NodeToolTipProps {
   node: Node | null;
@@ -18,13 +18,10 @@ export default function NodeToolTip({
   onMouseLeave,
 }: NodeToolTipProps) {
   // 1. Extract the nodeName safely from the data key, matching your structure
-  const nodeName = node?.data?.label || "Unnamed Node";
-  const nodeLastupdateDts = node?.data?.lastUpdateDts
-    ? String(node.data.lastUpdateDts)
-    : "No last update";
-  const nodeUrl = node?.data?.url || undefined;
-
-  // 2. Extract the coordinates of the node so we can place the tooltip right over it
+  const nodeName = String(node?.data?.label) || "Unnamed Node";
+  const nodeLastupdateDts =
+    String(node?.data?.lastUpdateDts) || "no last update dts";
+  const nodeUrl = String(node?.data?.url) || "";
 
   return (
     <div

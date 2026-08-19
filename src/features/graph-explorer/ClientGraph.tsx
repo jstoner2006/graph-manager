@@ -3,33 +3,21 @@
 import { useMemo, useState } from "react";
 import { ClientGraphViz } from "./ClientGraphViz";
 
-import { Node } from "@prisma/client";
-import { Edge } from "@/types/edge";
 import { useGraphData } from "./useGraphData";
 import EdgeTypeSelector from "./ui/EdgeTypeSelector";
 import { NodeSelector } from "./ui/nodeSelector";
 import { EdgeLevelSelector } from "./ui/EdgeLevelSelector";
 import { NodeTypeSelector } from "./ui/NodeTypeSelector";
-import { ProjectEdgeLevel } from "@prisma/client";
-import { ProjectEdgeType } from "@prisma/client";
 
-type NodeType = { projectId: string; nodeType: string };
-
-type Props = {
-  nodes: Node[];
-  edges: Edge[];
-  nodeTypes: NodeType[];
-  ProjectEdgeLevels: string[];
-  projectEdgeTypes: string[];
-};
+import { ProjectGraphContext } from "@/types/project-graph-context";
 
 export default function ClientGraph({
   nodes,
   edges,
   nodeTypes,
-  ProjectEdgeLevels,
-  projectEdgeTypes,
-}: Props) {
+  edgeLevels,
+  edgeTypes,
+}: ProjectGraphContext) {
   /**
    *
    *
@@ -41,27 +29,22 @@ export default function ClientGraph({
   const [hopsBefore, setHopsBefore] = useState(2);
   const [hopsAfter, setHopsAfter] = useState(2);
   const [selectedEdgeLevels, setSelectedEdgeLevels] =
-    useState<string[]>(ProjectEdgeLevels);
+    useState<string[]>(edgeLevels);
   const [selectedEdgeTypes, setSelectedEdgeTypes] =
-    useState<string[]>(projectEdgeTypes);
+    useState<string[]>(edgeTypes);
 
   const availableNodes = useMemo(() => {
     if (!selectedNodeType) return nodes;
-    return nodes.filter((n) => n.nodeType === selectedNodeType);
+    return nodes.filter((n) => n.data.nodeType === selectedNodeType);
   }, [nodes, selectedNodeType]);
 
-  const {
-    nodes: rfNodes,
-    edges: rfEdges,
-    anchorNode,
-  } = useGraphData({
+  const { graph: rfgraph, anchorNode } = useGraphData({
     nodes,
     edges,
     selectedNodeId,
     hopsBefore,
     hopsAfter,
     selectedEdgeTypes,
-    selectedNodeType,
     selectedEdgeLevels,
   });
 
@@ -83,17 +66,17 @@ export default function ClientGraph({
           {" "}
           Select Edge Type
           <EdgeTypeSelector
-            projectEdgeTypes={projectEdgeTypes}
+            projectEdgeTypes={edgeTypes}
             selectedEdgeTypes={selectedEdgeTypes}
             onToggle={handleToggleEdgeType}
-            onClear={() => setSelectedEdgeTypes(projectEdgeTypes)}
+            onClear={() => setSelectedEdgeTypes(edgeTypes)}
           />
         </div>
         {/* Edge Level Selector */}
         <div className="flex flex-col gap-1.5">
           Select Edge Level
           <EdgeLevelSelector
-            projectEdgeLevels={ProjectEdgeLevels}
+            projectEdgeLevels={edgeLevels}
             selectedEdgeLevels={selectedEdgeLevels}
             onSelectEdgeLevels={setSelectedEdgeLevels}
           />
@@ -142,8 +125,8 @@ export default function ClientGraph({
       </div>
       {selectedNodeId ? (
         <ClientGraphViz
-          nodes={rfNodes}
-          edges={rfEdges}
+          nodes={rfgraph.nodes}
+          edges={rfgraph.edges}
           anchorNode={anchorNode}
         />
       ) : (

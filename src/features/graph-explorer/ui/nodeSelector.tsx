@@ -17,11 +17,12 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { Node } from "@prisma/client";
+
+import { Nodes } from "@/types/nodes";
 
 interface NodeSelectorProps {
-  nodes: Node[];
-  availableNodes: Node[];
+  nodes: Nodes;
+  availableNodes: Nodes;
   selectedNodeId: string;
   onSelectNodeId: (id: string) => void;
 }
@@ -34,7 +35,7 @@ export function NodeSelector({
 }: NodeSelectorProps) {
   const commandListRef = useRef<HTMLDivElement>(null);
 
-  const selectedNode = nodes.find((n) => n.nodeId === selectedNodeId);
+  const selectedNode = nodes.find((n) => n.id === selectedNodeId);
 
   return (
     <Popover>
@@ -44,7 +45,7 @@ export function NodeSelector({
           role="combobox"
           className="w-[300px] justify-between"
         >
-          {selectedNodeId ? selectedNode?.nodeDisplayName : "Select Node"}
+          {selectedNodeId ? selectedNode?.data.label : "Select Node"}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -63,14 +64,14 @@ export function NodeSelector({
             <CommandGroup>
               {availableNodes.map((node) => (
                 <CommandItem
-                  key={node.nodeId}
-                  value={`${node.nodeDisplayName.toLowerCase()}||${node.nodeId}`}
-                  onSelect={() => onSelectNodeId(node.nodeId)}
+                  key={node.id}
+                  value={`${node.data?.label?.toLowerCase()}||${node.id}`}
+                  onSelect={() => onSelectNodeId(node.id)}
                 >
                   <Check
-                    className={`mr-2 h-4 w-4 ${selectedNodeId === node.nodeId ? "opacity-100" : "opacity-0"}`}
+                    className={`mr-2 h-4 w-4 ${selectedNodeId === node.id ? "opacity-100" : "opacity-0"}`}
                   />
-                  {node.nodeDisplayName}
+                  {node.data?.label}
                 </CommandItem>
               ))}
             </CommandGroup>

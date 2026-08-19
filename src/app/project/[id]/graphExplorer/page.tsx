@@ -1,5 +1,6 @@
 import ClientGraph from "@/features/graph-explorer/ClientGraph";
 import { getGraphData } from "@/features/graph-explorer/getGraphData";
+import { ProjectGraphContext } from "@/types/project-graph-context";
 
 type Props = {
   params: Promise<{
@@ -10,15 +11,15 @@ type Props = {
 export default async function Page({ params }: Props) {
   const { id } = await params;
 
-  const graph = await getGraphData(id);
+  const graphContext: ProjectGraphContext = await getGraphData(id);
 
   return (
     <ClientGraph
-      nodes={graph.nodes}
-      edges={graph.edges}
-      nodeTypes={graph.nodeTypes}
-      ProjectEdgeLevels={graph.projectEdgeLevels}
-      projectEdgeTypes={graph.projectEdgeTypes}
+      nodes={graphContext.nodes}
+      edges={graphContext.edges}
+      nodeTypes={graphContext.nodeTypes}
+      edgeLevels={graphContext.edgeLevels}
+      edgeTypes={graphContext.edgeTypes}
     />
   );
 }

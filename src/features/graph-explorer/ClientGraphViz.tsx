@@ -14,12 +14,16 @@ import {
 
 import "@xyflow/react/dist/style.css";
 
-import { Node, Edge } from "@xyflow/react";
+//import { Node, Edge } from "@xyflow/react";
+import { Node } from "@/types/node";
+import { Edge } from "@/types/edge";
 import NodeToolTip from "./NodeToolTip";
+import { Nodes } from "@/types/nodes";
+import { Edges } from "@/types/edges";
 
 type ClientGraphVizProps = {
-  nodes: Node[];
-  edges: Edge[];
+  nodes: Nodes;
+  edges: Edges;
   anchorNode: Node;
 };
 
@@ -28,8 +32,8 @@ export function GraphVizCanvas({
   edges: initialEdges,
   anchorNode: initialAnchorNode,
 }: ClientGraphVizProps) {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node>(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(initialEdges);
   const [hoveredNode, setHoveredNode] = useState<Node | null>(null);
   //added to hold absolute position of node for tool tip
   const [toolTipPos, setToolTipPos] = useState({ x: 0, y: 0 });
